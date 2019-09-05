@@ -76,7 +76,7 @@ bool Scene::procCmd(string line) {
   }
   ins.args.push_back(arg);
   
-  cmdQueue.push(ins);
+  cmdQueue.push_back(ins);
   return true;
 }
 
@@ -93,9 +93,9 @@ double Scene::getOutRate() {
 
 void Scene::update() {
   sf::Clock procTimeC;
-  while (timeFrame==cmdQueue.front().time) {
-    printf("Popping at frame %ld.\n",cmdQueue.front().time);
-    Command& c=cmdQueue.front();
+  while (timeFrame==cmdQueue[cmdIndex].time) {
+    printf("Popping at frame %ld.\n",cmdQueue[cmdIndex].time);
+    Command c=cmdQueue[cmdIndex++];
     // process command
     if (c.args[0]=="identify") {
       // check size
@@ -240,7 +240,6 @@ void Scene::update() {
     } else {
       printf("unknown command %s\n",c.args[0].c_str());
     }
-    cmdQueue.pop();
   }
   for (size_t i=0; i<obj.size(); i++) {
     if (!obj[i]->update()) {
@@ -259,7 +258,7 @@ void Scene::draw() {
     i->draw();
   }
   // DEBUG INFO BEGIN //
-  debugString=strFormat("TAF (version " TAF_VERSION ")\n % 4.0f FPS, % 3d obj, proc % 5dµs draw % 3dµs\noutFrame %d, timeFrame %d, remaining cmds %d",round(double(1000000000/fps.getElapsedTime().asMicroseconds())/1000),obj.size(),procTime,renderTime.getElapsedTime().asMicroseconds(),frame,timeFrame,cmdQueue.size());
+  debugString=strFormat("TAF (version " TAF_VERSION ")\n % 4.0f FPS, % 3d obj, proc % 5dµs draw % 3dµs\noutFrame %d, timeFrame %d, remaining cmds %d",round(double(1000000000/fps.getElapsedTime().asMicroseconds())/1000),obj.size(),procTime,renderTime.getElapsedTime().asMicroseconds(),frame,timeFrame,cmdQueue.size()-cmdIndex);
   fps.restart();
   // DEBUG INFO END //
   frame++;

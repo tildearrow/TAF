@@ -100,6 +100,24 @@ class VideoDecoder {
     ~VideoDecoder();
 };
 
+struct PreloadImage {
+  sf::Image img;
+  string path;
+  bool complete;
+};
+
+class PreloadPool {
+  std::vector<PreloadImage> pool;
+  sf::Thread* thr;
+  bool quit;
+  public:
+    void runJob();
+    sf::Image acquire(string path);
+    int insert(string path);
+    PreloadPool();
+    ~PreloadPool();
+};
+
 class Animator {
   std::vector<Keyframe> key;
   public:
@@ -245,15 +263,17 @@ class Scene {
   long int frame, timeFrame;
   double rate, outRate;
   long int animBegin, animEnd;
+  long int cmdIndex;
 
   std::vector<Object*> obj;
   
-  std::queue<Command> cmdQueue;
+  std::vector<Command> cmdQueue;
   
   public:
     Audio audsys;
     sf::Texture defTex;
     string debugString;
+    PreloadPool preload;
     template<typename T> Object* addObject(Coords pos, string name) {
       obj.push_back(new T(this, *win));
       obj[obj.size()-1]->pos=pos;

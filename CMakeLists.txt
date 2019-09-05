@@ -9,6 +9,7 @@ src/engine/animator.cpp
 src/engine/audio.cpp
 src/engine/decoder.cpp
 src/engine/object.cpp
+src/engine/preload.cpp
 src/engine/scene.cpp
 src/engine/stream.cpp
 
