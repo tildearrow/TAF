@@ -9,6 +9,12 @@
 #include <sndfile.h>
 #include <jack/jack.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "ta-log.h"
 #include "ta-time.h"
 
@@ -25,10 +31,13 @@ extern "C" {
 #define TAF_MOTION_SAMPLES 8
 #define TAF_AUDIO_CHAN 2
 
+#define S(x) std::string(x)
+
 typedef std::string string;
 
 extern int dw, dh;
 
+string parentDir(string what);
 string strFormat(const char* format, ...);
 string getAVError(int err);
 std::vector<string> disarmList(string list);

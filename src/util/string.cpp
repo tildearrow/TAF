@@ -1,5 +1,17 @@
 #include "taf.h"
 
+// get parent directory
+string parentDir(string what) {
+#ifdef _WIN32
+  const char* delim="\\";
+#else
+  const char* delim="/";
+#endif
+  size_t pos=what.find_last_of(delim);
+  if (pos==string::npos) return S(delim);
+  return what.substr(0,pos);
+}
+
 // horrible beautify-ing
 string getAVError(int err) {
   char str[32768];
