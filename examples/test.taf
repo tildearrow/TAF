@@ -1,0 +1,17 @@
+---TAF PROJECT BEGIN---
+0 identify "test" "tildearrow"
+0 canvas 1920 1080
+0 rate 60 60
+0 length 1 250
+1 insert Text text1 960 540 ../res/font.ttf 108
+1 prop text1 textColor [1 1 1 1] text "Hello World!" origin [0.5 0.5]
+30 insert Text text2 960 540 ../res/font.ttf 48
+30 prop text2 text "Testing!"
+60 move text1 960 640
+61 move text1 960 740
+62 move text1 960 840
+63 move text1 960 940
+64 move text1 960 1040
+65 move text1 960 1140
+80 move text2 960 0
+90 end

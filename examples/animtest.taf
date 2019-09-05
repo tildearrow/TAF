@@ -1,0 +1,9 @@
+---TAF PROJECT BEGIN---
+0 identify "Animation Test" "tildearrow"
+0 canvas 1920 1080
+0 rate 30 30
+0 length 1 250
+1 insert Sprite oMain 960 540 ../res/placeholder.png
+1 prop oMain origin [128 128]
+30 animate oMain pos.0 [0 960 0 30 1600 0 90 960 0]
+30 animate oMain rot [0 0 0 30 270 0 60 180 0]

@@ -1,0 +1,12 @@
+---TAF PROJECT BEGIN---
+0 identify "Video Playback Test" "tildearrow"
+0 canvas 1920 1080
+0 rate 60 60
+0 length 1 250
+1 insert MotionSprite oMain 960 540 football.mkv 0 600
+1 prop oMain origin [352 288]
+40 insert MotionSprite oOther 352 2000 football.mkv 0 600
+40 prop oOther origin [352 288]
+40 animate oOther pos.1 [0 2000 0 10 540 0]
+120 animate oOther pos.0 [0 352 0 30 1568 0]
+240 end
