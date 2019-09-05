@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   
   out.create(1920,1080);
   outS.setTexture(out.getTexture());
-  scale=dw/1920;
+  scale=double(dw)/1920.0;
   outS.setScale(scale,scale);
   out.clear();
   out.display();
@@ -81,6 +81,12 @@ int main(int argc, char** argv) {
   w.setVerticalSyncEnabled(true);
 
   s=new Scene(out);
+
+#ifdef _WIN32
+  SetCurrentDirectory(parentDir(argv[1]).c_str());
+#else
+  chdir(parentDir(argv[1]).c_str());
+#endif
   
   curLine=1;
   while (!feof(f)) {
