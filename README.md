@@ -39,3 +39,16 @@ well, it's because:
 so, I said, screw it! if nothing works for me, and the other solutions are unaffordable at the moment, I am going to do the insane: build a whole video editor/compositor from scratch.
 
 and so TAF was born.
+
+# features
+
+- designed with graphics cards in mind.
+  - rendering is done almost entirely in the GPU, which provides a massive boost when compared to existing solutions.
+- simple file format.
+  - no XML, no JSON, no insanity. just a simple, script-style text file with commands.
+- mostly text-oriented at the moment.
+  - a GUI is coming soon, guaranteed.
+
+# to-do
+
+a lot.
