@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   
   f=fopen(argv[1],"r");
   if (f==NULL) {
-    logE("error while opening file");
+    logE("error while opening file\n");
     return 1;
   }
   fgets(str,4095,f);
