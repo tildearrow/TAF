@@ -26,7 +26,7 @@ extern "C" {
   #include <libswscale/swscale.h>
 }
 
-#define TAF_VERSION "dev12"
+#define TAF_VERSION "dev13"
 
 #define TAF_MOTION_SAMPLES 8
 #define TAF_AUDIO_CHAN 2
@@ -101,19 +101,21 @@ class VideoDecoder {
 };
 
 struct PreloadImage {
-  sf::Image img;
+  sf::Image* img;
   string path;
-  bool complete;
+  PreloadImage(string p): path(p) {}
 };
 
 class PreloadPool {
+  std::queue<string> pqueue;
   std::vector<PreloadImage> pool;
   sf::Thread* thr;
+  sf::Mutex poolLock;
   bool quit;
   public:
     void runJob();
-    sf::Image acquire(string path);
-    int insert(string path);
+    sf::Image* acquire(string path);
+    void insert(string path);
     PreloadPool();
     ~PreloadPool();
 };

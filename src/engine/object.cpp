@@ -3,10 +3,9 @@
 Object::Object(Scene* s, sf::RenderTarget& w): super(s), win(&w), life(0) {
   scale=Coords(0.5,0.5);
   rot=0;
+  oldRot=0;
   spr.setTexture(super->defTex);
   spr.setOrigin(super->defTex.getSize().x/2,super->defTex.getSize().y/2);
-  pos.x=rand()%1920;
-  pos.y=rand()%1080;
 }
 
 Object::~Object() {

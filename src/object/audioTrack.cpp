@@ -4,6 +4,7 @@ AudioTrack::AudioTrack(Scene* s, sf::RenderTarget& w): Object(s,w), file(NULL), 
   scale=Coords(1,1);
   rot=0;
   id=super->audsys.newStream(2048);
+  memset(&info,0,sizeof(SF_INFO));
 }
 
 string AudioTrack::getObjectType() {

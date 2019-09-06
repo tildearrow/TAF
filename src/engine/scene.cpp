@@ -1,6 +1,6 @@
 #include "taf.h"
 
-Scene::Scene(sf::RenderTarget& w): win(&w), frame(0), timeFrame(0) {
+Scene::Scene(sf::RenderTarget& w): win(&w), frame(0), timeFrame(0), cmdIndex(0) {
   defTex.loadFromFile("../res/placeholder.png");
   defTex.setSmooth(true);
   size=Coords(1920,1080);
@@ -23,6 +23,8 @@ bool Scene::procCmd(string line) {
   string arg;
   
   stringMode=false; listMode=false; backEscape=false; frameNumber=true;
+  
+  ins.time=0;
   
   if (line[0]=='#') {
     // comment
@@ -75,6 +77,14 @@ bool Scene::procCmd(string line) {
     return false;
   }
   ins.args.push_back(arg);
+  
+  // preloading stuff
+  if (ins.args.size()>=6) {
+    if (ins.args[0]=="insert" && ins.args[1]=="Sprite") {
+      printf("inserting preload on %s\n",ins.args[5].c_str());
+      preload.insert(ins.args[5]);
+    }
+  }
   
   cmdQueue.push_back(ins);
   return true;

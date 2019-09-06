@@ -14,7 +14,7 @@ bool Sprite::setProp(string prop, string value) {
   if (Object::setProp(prop,value)) return true;
   try {
     if (prop=="file") {
-      if (tex.loadFromFile(value)) {
+      if (tex.loadFromImage(*super->preload.acquire(value))) {
         tex.setSmooth(true);
         spr.setTexture(tex,true);
         return true;
