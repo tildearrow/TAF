@@ -77,12 +77,30 @@ i | aliases
 2 | z, b
 3 | w, a
 
+### pipeline
+
+create an effect pipeline.
+
 ### effect
 
-insert effect/process to object. this also inserts more properties.
+insert effect/process to pipeline.
 
 ```
-1 effect Object Stage Effect [args...]
+1 effect Pipeline Effect [args...]
+```
+
+see [effects.md](effects.md) for more information.
+
+### attach
+
+attach pipeline to an object or pipeline.
+you can attach multiple pipelines to an object.
+
+```
+1 attach Object Pipeline Stage
+```
+```
+1 attach Pipeline Pipeline Stage BlendMode
 ```
 
 `Stage` may be one of the following:
@@ -91,7 +109,15 @@ insert effect/process to object. this also inserts more properties.
 - mid: before motion blur
 - post: after all stock processes
 
-see [effects.md](effects.md) for more information.
+`BlendMode` may be one of the following:
+
+- add: addition
+- sub: subtraction
+- avg: average
+- mult: multiplication/modulation
+- blend: blending
+- mask: alpha masking
+- invMask: inverse alpha masking
 
 ### end
 
