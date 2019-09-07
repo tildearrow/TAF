@@ -40,6 +40,8 @@ insert an object.
 1 insert ObjectType Name X Y [args...]
 ```
 
+see [objectTypes.md](objectTypes.md) for more information.
+
 ### prop
 
 set object property.
@@ -74,6 +76,22 @@ i | aliases
 1 | y, g
 2 | z, b
 3 | w, a
+
+### effect
+
+insert effect/process to object. this also inserts more properties.
+
+```
+1 effect Object Stage Effect [args...]
+```
+
+`Stage` may be one of the following:
+
+- pre: before blend color multiplication
+- mid: before motion blur
+- post: after all stock processes
+
+see [effects.md](effects.md) for more information.
 
 ### end
 
