@@ -1,8 +1,21 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(TAF)
+# legacy. it has always worked well.
+# heck, it is not even legacy. you're just ignoring AMD here.
+set(OpenGL_GL_PREFERENCE "LEGACY")
+set(SFML_BUILD_AUDIO FALSE)
+set(SFML_BUILD_NETWORK FALSE)
+if (BUILD_STATIC)
+  set(BUILD_SHARED_LIBS FALSE)
+else (BUILD_STATIC)
+  set(BUILD_SHARED_LIBS TRUE)
+endif (BUILD_STATIC)
+add_subdirectory(SFML)
 
-include_directories(include src/gui)
+project(TAF)
+set(CMAKE_CXX_STANDARD 11)
+
+include_directories(include sfml/include src/gui)
 
 set(IMGUI_BASE
 src/gui/imgui.cpp
