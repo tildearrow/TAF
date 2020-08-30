@@ -1,4 +1,6 @@
 #include "taf.h"
+#include <imgui.h>
+#include <imgui-SFML.h>
 
 bool quit, paused, frameAdvance, bounds;
 
@@ -52,6 +54,8 @@ int main(int argc, char** argv) {
   
   w.create(sf::VideoMode(dw,dh),"TAF"
           ,sf::Style::Close|sf::Style::Fullscreen);
+
+  ImGui::SFML::Init(w);
   
   out.create(1920,1080);
   outS.setTexture(out.getTexture());
@@ -108,8 +112,11 @@ int main(int argc, char** argv) {
     w.display();
   }
   
+  sf::Clock imClock;
   while (1) {
     while (w.pollEvent(e)) {
+      ImGui::SFML::ProcessEvent(e);
+
       switch (e.type) {
         case sf::Event::Closed:
           quit=true;
@@ -133,6 +140,34 @@ int main(int argc, char** argv) {
           break;
       }
     }
+    // GUI CODE BEGIN //
+    ImGui::SFML::Update(w,imClock.restart());
+
+    ImGui::Begin("Playback");
+    ImGui::Button("First");
+    ImGui::SameLine();
+    ImGui::Button("Backward");
+    ImGui::SameLine();
+    if (!paused) {
+      if (ImGui::Button("Play")) {
+        paused=!paused;
+      }
+    } else {
+      if (ImGui::Button("Stop")) {
+        paused=!paused;
+      }
+    }
+    ImGui::SameLine();
+    ImGui::Button("Forward");
+    ImGui::SameLine();
+    ImGui::Button("Last");
+    ImGui::End();
+
+    ImGui::Begin("Script");
+    ImGui::Text("This is where the loaded project script goes.");
+    ImGui::End();
+    // GUI CODE END //
+
     // GRAPHICS CODE BEGIN //
     if (!paused || frameAdvance) {
       out.clear();
@@ -179,6 +214,9 @@ int main(int argc, char** argv) {
     debugStr+="\n\n"+s->objDebug();
     debugText.setString(sf::String::fromUtf8(debugStr.begin(),debugStr.end()));
     w.draw(debugText);
+
+    ImGui::SFML::Render(w);
+
     w.display();
     // GRAPHICS CODE END //
     if (quit) break;

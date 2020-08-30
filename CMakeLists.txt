@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 3.0)
 
 project(TAF)
 
-include_directories(include)
+include_directories(include src/gui)
+
+set(IMGUI_BASE
+src/gui/imgui.cpp
+src/gui/imgui_widgets.cpp
+src/gui/imgui_draw.cpp
+src/gui/imgui-SFML.cpp)
 
 set(TAF_BASE
 src/engine/animator.cpp
@@ -26,9 +32,10 @@ src/object/sprite.cpp
 src/object/text.cpp)
 
 add_executable(taf-play
+${IMGUI_BASE}
 ${TAF_BASE}
 src/run/play.cpp)
 
-target_link_libraries(taf-play sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile)
+target_link_libraries(taf-play sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile GL)
 
 install(TARGETS taf-play RUNTIME DESTINATION bin)
