@@ -37,6 +37,17 @@ namespace ImGui {
   }
 }
 
+void analyzeCmd(Command c) {
+  if (c.args.empty()) {
+    ImGui::TextColored(ImVec4(1,0.5,0.5,1),"???");
+    return;
+  }
+  ImGui::TextColored(ImVec4(1,1,0.5,1),"%s",c.args[0].c_str());
+  for (int i=1; i<c.args.size(); i++) {
+    ImGui::Text("%s",c.args[i].c_str());
+  }
+}
+
 int main(int argc, char** argv) {
   paused=false;
   bounds=true;
@@ -189,24 +200,14 @@ int main(int argc, char** argv) {
     ImGui::Columns(3);
     ImGui::SetColumnWidth(0,48);
     ImGui::SetColumnWidth(1,128);
-    bool firstC=true;
     for (int i=0; i<s->cmdQueue.size(); i++) {
-      firstC=true;
       if ((s->cmdIndex-1)==i) {
         ImGui::Text(ICON_FA_CHEVRON_RIGHT);
       }
       ImGui::NextColumn();
       ImGui::TextColored(ImVec4(0.5,1,0.5,1),"%ld",s->cmdQueue[i].time);
       ImGui::NextColumn();
-      for (string& j: s->cmdQueue[i].args) {
-        if (firstC) {
-          ImGui::TextColored(ImVec4(1,1,0.5,1),"%s",j.c_str());
-          firstC=false;
-        } else {
-          ImGui::SameLine();
-          ImGui::Text("%s",j.c_str());
-        }
-      }
+      analyzeCmd(s->cmdQueue[i]);
       ImGui::NextColumn();
     }
     ImGui::End();
