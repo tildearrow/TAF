@@ -8,3 +8,6 @@
 	path = SFML
 	url = https://github.com/SFML/SFML
 	branch = 2.5.x
+[submodule "IconFontCppHeaders"]
+	path = IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders

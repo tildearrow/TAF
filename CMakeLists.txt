@@ -15,7 +15,7 @@ add_subdirectory(SFML)
 project(TAF)
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(include sfml/include src/gui)
+include_directories(include sfml/include src/gui IconFontCppHeaders)
 
 set(IMGUI_BASE
 src/gui/imgui.cpp

@@ -1,6 +1,7 @@
 #include "taf.h"
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <IconsFontAwesome4.h>
 
 bool quit, paused, frameAdvance, bounds;
 
@@ -27,6 +28,15 @@ int dw, dh;
 
 double scale;
 
+namespace ImGui {
+  void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect, const sf::Color& tintColor, const sf::Color& borderColor) {
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    ImVec2 uv0(textureRect.left / textureSize.x, (textureRect.top + textureRect.height) /   textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x, textureRect.top / textureSize.y);
+    Image(texture.getTexture().getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
+  }
+}
+
 int main(int argc, char** argv) {
   paused=false;
   bounds=true;
@@ -47,19 +57,31 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  sf::VideoMode vm;
-  vm=sf::VideoMode::getDesktopMode();
-  dw=vm.width;
-  dh=vm.height;
+  /*sf::VideoMode vm;
+  vm=sf::VideoMode::getDesktopMode();*/
+  dw=2560;
+  dh=1440;
   
   w.create(sf::VideoMode(dw,dh),"TAF"
-          ,sf::Style::Close|sf::Style::Fullscreen);
+          ,sf::Style::Close|sf::Style::Resize);
 
-  ImGui::SFML::Init(w);
+  ImGui::SFML::Init(w,false);
+  
+  //ImGui::GetIO().Fonts->Clear();
+  ImGui::GetStyle().ScaleAllSizes(2);
+  
+  ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/font.ttf",18*2);
+  
+  ImFontConfig fc;
+  fc.MergeMode=true;
+  fc.GlyphMinAdvanceX=13.0f;
+  static const ImWchar fir[]={ICON_MIN_FA,ICON_MAX_FA,0};
+  ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/FontAwesome.otf",18*2,&fc,fir);
+  ImGui::SFML::UpdateFontTexture();
   
   out.create(1920,1080);
   outS.setTexture(out.getTexture());
-  scale=double(dw)/1920.0;
+  scale=double(dw)/3840.0;
   outS.setScale(scale,scale);
   out.clear();
   out.display();
@@ -143,28 +165,58 @@ int main(int argc, char** argv) {
     // GUI CODE BEGIN //
     ImGui::SFML::Update(w,imClock.restart());
 
-    ImGui::Begin("Playback");
-    ImGui::Button("First");
+    ImGui::Begin("Playback",NULL,ImGuiWindowFlags_NoTitleBar);
+    ImGui::Button(ICON_FA_FAST_BACKWARD);
     ImGui::SameLine();
-    ImGui::Button("Backward");
+    ImGui::Button(ICON_FA_BACKWARD);
     ImGui::SameLine();
     if (!paused) {
-      if (ImGui::Button("Play")) {
+      if (ImGui::Button(ICON_FA_PAUSE)) {
         paused=!paused;
       }
     } else {
-      if (ImGui::Button("Stop")) {
+      if (ImGui::Button(ICON_FA_PLAY)) {
         paused=!paused;
       }
     }
     ImGui::SameLine();
-    ImGui::Button("Forward");
+    ImGui::Button(ICON_FA_FORWARD);
     ImGui::SameLine();
-    ImGui::Button("Last");
+    ImGui::Button(ICON_FA_FAST_FORWARD);
     ImGui::End();
 
     ImGui::Begin("Script");
-    ImGui::Text("This is where the loaded project script goes.");
+    ImGui::Columns(3);
+    ImGui::SetColumnWidth(0,48);
+    ImGui::SetColumnWidth(1,128);
+    bool firstC=true;
+    for (int i=0; i<s->cmdQueue.size(); i++) {
+      firstC=true;
+      if ((s->cmdIndex-1)==i) {
+        ImGui::Text(ICON_FA_CHEVRON_RIGHT);
+      }
+      ImGui::NextColumn();
+      ImGui::TextColored(ImVec4(0.5,1,0.5,1),"%ld",s->cmdQueue[i].time);
+      ImGui::NextColumn();
+      for (string& j: s->cmdQueue[i].args) {
+        if (firstC) {
+          ImGui::TextColored(ImVec4(1,1,0.5,1),"%s",j.c_str());
+          firstC=false;
+        } else {
+          ImGui::SameLine();
+          ImGui::Text("%s",j.c_str());
+        }
+      }
+      ImGui::NextColumn();
+    }
+    ImGui::End();
+    
+    ImGui::Begin("Inspector");
+    ImGui::Text("%s",s->objDebug().c_str());
+    ImGui::End();
+
+    ImGui::Begin("Viewer");
+    ImGui::Image(out,sf::Vector2f(1280,720),sf::FloatRect(0,0,1920,1080),sf::Color::White,sf::Color::Transparent);
     ImGui::End();
     // GUI CODE END //
 
@@ -177,7 +229,7 @@ int main(int argc, char** argv) {
       frameAdvance=false;
     }
     w.clear();
-    w.draw(outS,sf::BlendNone);
+    //w.draw(outS,sf::BlendNone);
     
     if (bounds) {
       sf::RectangleShape boundRect;
@@ -211,7 +263,6 @@ int main(int argc, char** argv) {
       w.draw(guideLineText);
       //debugStr+=strFormat(" %d, %d\n",sf::Mouse::getPosition().x,sf::Mouse::getPosition().y);
     }
-    debugStr+="\n\n"+s->objDebug();
     debugText.setString(sf::String::fromUtf8(debugStr.begin(),debugStr.end()));
     w.draw(debugText);
 

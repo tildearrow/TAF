@@ -250,6 +250,9 @@ class Audio {
     Audio();
 };
 
+// NOTE: about time:
+// - -1: comment
+// - -2: empty line
 struct Command {
   long int time;
   std::vector<string> args;
@@ -265,13 +268,11 @@ class Scene {
   long int frame, timeFrame;
   double rate, outRate;
   long int animBegin, animEnd;
-  long int cmdIndex;
-
-  std::vector<Object*> obj;
-  
-  std::vector<Command> cmdQueue;
   
   public:
+    long int cmdIndex;
+    std::vector<Object*> obj;
+    std::vector<Command> cmdQueue;
     Audio audsys;
     sf::Texture defTex;
     string debugString;
