@@ -28,6 +28,9 @@ bool Scene::procCmd(string line) {
   
   if (line[0]=='#') {
     // comment
+    ins.time=-1;
+    ins.args.push_back(line);
+    cmdQueue.push_back(ins);
     return true;
   }
   
@@ -103,7 +106,11 @@ double Scene::getOutRate() {
 
 void Scene::update() {
   sf::Clock procTimeC;
-  while (timeFrame==cmdQueue[cmdIndex].time) {
+  while (cmdQueue[cmdIndex].time==-1 || timeFrame==cmdQueue[cmdIndex].time) {
+    if (cmdQueue[cmdIndex].time==-1) {
+      cmdIndex++;
+      continue;
+    }
     printf("Popping at frame %ld.\n",cmdQueue[cmdIndex].time);
     Command c=cmdQueue[cmdIndex++];
     // process command

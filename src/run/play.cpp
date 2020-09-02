@@ -3,7 +3,7 @@
 #include <imgui-SFML.h>
 #include <IconsFontAwesome4.h>
 
-bool quit, paused, frameAdvance, bounds;
+bool quit, playing, frameAdvance, bounds;
 
 sf::RenderWindow w;
 sf::RenderTexture out;
@@ -38,18 +38,44 @@ namespace ImGui {
 }
 
 void analyzeCmd(Command c) {
-  if (c.args.empty()) {
-    ImGui::TextColored(ImVec4(1,0.5,0.5,1),"???");
-    return;
+  if (c.time==-1) {
+    ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,1,1));
+    ImGui::Selectable(c.args[0].c_str());
+  } else if (c.args.empty()) {
+    ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1,0.5,0.5,1));
+    ImGui::Selectable("???");
+  } else {
+    ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1,1,0.5,1));
+    ImGui::Selectable(c.args[0].c_str());
   }
-  ImGui::TextColored(ImVec4(1,1,0.5,1),"%s",c.args[0].c_str());
+  ImGui::PopStyleColor();
+  bool status=ImGui::IsItemHovered();
+  
+  if (status) {
+    ImGui::SameLine();
+    ImGui::SmallButton(ICON_FA_PENCIL);
+    if (ImGui::IsItemHovered()) {
+      if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        printf("edit item!\n");
+      }
+    }
+    ImGui::SameLine();
+    ImGui::SmallButton(ICON_FA_TIMES);
+    if (ImGui::IsItemHovered()) {
+      if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        printf("delete item!\n");
+      }
+    }
+  }
+  
   for (int i=1; i<c.args.size(); i++) {
+    ImGui::SameLine();
     ImGui::Text("%s",c.args[i].c_str());
   }
 }
 
 int main(int argc, char** argv) {
-  paused=false;
+  playing=false;
   bounds=true;
   frameAdvance=false;
   if (argc<2) {
@@ -158,7 +184,7 @@ int main(int argc, char** argv) {
           if (e.key.code==sf::Keyboard::Escape) {
             quit=true;
           } else if (e.key.code==sf::Keyboard::Space) {
-            paused=!paused;
+            playing=!playing;
           } else if (e.key.code==sf::Keyboard::Period) {
             frameAdvance=true;
           } else if (e.key.code==sf::Keyboard::Tab) {
@@ -181,13 +207,13 @@ int main(int argc, char** argv) {
     ImGui::SameLine();
     ImGui::Button(ICON_FA_BACKWARD);
     ImGui::SameLine();
-    if (!paused) {
+    if (playing) {
       if (ImGui::Button(ICON_FA_PAUSE)) {
-        paused=!paused;
+        playing=!playing;
       }
     } else {
       if (ImGui::Button(ICON_FA_PLAY)) {
-        paused=!paused;
+        playing=!playing;
       }
     }
     ImGui::SameLine();
@@ -197,15 +223,24 @@ int main(int argc, char** argv) {
     ImGui::End();
 
     ImGui::Begin("Script");
-    ImGui::Columns(3);
+    ImGui::Columns(3,NULL,false);
     ImGui::SetColumnWidth(0,48);
-    ImGui::SetColumnWidth(1,128);
+    ImGui::SetColumnWidth(1,96);
     for (int i=0; i<s->cmdQueue.size(); i++) {
       if ((s->cmdIndex-1)==i) {
         ImGui::Text(ICON_FA_CHEVRON_RIGHT);
       }
       ImGui::NextColumn();
-      ImGui::TextColored(ImVec4(0.5,1,0.5,1),"%ld",s->cmdQueue[i].time);
+      if (s->cmdQueue[i].time==-1) {
+        /*
+        ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,1,1));
+        ImGui::Selectable("#");
+        ImGui::PopStyleColor();*/
+      } else {
+        ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,0.5,1));
+        ImGui::Selectable(strFormat("%ld",s->cmdQueue[i].time).c_str());
+        ImGui::PopStyleColor();
+      }
       ImGui::NextColumn();
       analyzeCmd(s->cmdQueue[i]);
       ImGui::NextColumn();
@@ -222,7 +257,7 @@ int main(int argc, char** argv) {
     // GUI CODE END //
 
     // GRAPHICS CODE BEGIN //
-    if (!paused || frameAdvance) {
+    if (playing || frameAdvance) {
       out.clear();
       s->update();
       s->draw();
@@ -251,7 +286,7 @@ int main(int argc, char** argv) {
     }
     
     debugStr=s->debugString;
-    if (paused) {
+    if (!playing) {
       sf::VertexArray guideLines(sf::Lines,4);
       guideLines[0].position=sf::Vector2f(0,sf::Mouse::getPosition().y);
       guideLines[1].position=sf::Vector2f(w.getSize().x,sf::Mouse::getPosition().y);
