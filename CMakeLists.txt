@@ -35,6 +35,7 @@ src/engine/stream.cpp
 src/util/list.cpp
 src/util/log.cpp
 src/util/string.cpp
+src/util/strings.cpp
 src/util/time.cpp
 
 src/object/audioTrack.cpp

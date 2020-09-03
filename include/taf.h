@@ -1,3 +1,5 @@
+#ifndef _TAF_H
+#define _TAF_H
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -41,6 +43,27 @@ string parentDir(string what);
 string strFormat(const char* format, ...);
 string getAVError(int err);
 std::vector<string> disarmList(string list);
+
+enum Commands {
+  cmdNoOp=0,
+  cmdIdentify,
+  cmdCanvas,
+  cmdRate,
+  cmdLength,
+  cmdRem,
+  cmdInsert,
+  cmdProp,
+  cmdMove,
+  cmdAnimate,
+  cmdPipeline,
+  cmdEffect,
+  cmdAttach,
+  cmdEnd,
+  
+  cmdMax
+};
+
+extern const char* cmdNames[32];
 
 struct Color {
   float r, g, b, a;
@@ -255,6 +278,7 @@ class Audio {
 // - -2: empty line
 struct Command {
   long int time;
+  unsigned char cmd;
   std::vector<string> args;
 };
 
@@ -300,3 +324,5 @@ class Scene {
     void draw();
     Scene(sf::RenderTarget& w);
 };
+
+#endif

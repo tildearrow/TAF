@@ -29,6 +29,7 @@ bool Scene::procCmd(string line) {
   if (line[0]=='#') {
     // comment
     ins.time=-1;
+    ins.cmd=cmdRem;
     ins.args.push_back(line);
     cmdQueue.push_back(ins);
     return true;
@@ -81,9 +82,18 @@ bool Scene::procCmd(string line) {
   }
   ins.args.push_back(arg);
   
+  // string to index
+  for (int i=0; i<=cmdMax; i++) {
+    if (i==cmdMax) return false;
+    if (ins.args[0]==cmdNames[i]) {
+      ins.cmd=i;
+      break;
+    }
+  }
+  
   // preloading stuff
   if (ins.args.size()>=6) {
-    if (ins.args[0]=="insert" && ins.args[1]=="Sprite") {
+    if (ins.cmd==cmdInsert && ins.args[1]=="Sprite") {
       printf("inserting preload on %s\n",ins.args[5].c_str());
       preload.insert(ins.args[5]);
     }
@@ -114,148 +124,159 @@ void Scene::update() {
     printf("Popping at frame %ld.\n",cmdQueue[cmdIndex].time);
     Command c=cmdQueue[cmdIndex++];
     // process command
-    if (c.args[0]=="identify") {
-      // check size
-      if (c.args.size()==3) {
-        animName=c.args[1];
-        animAuthor=c.args[2];
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="canvas") {
-      // check size
-      if (c.args.size()==3) {
-        try {
-          size.x=std::stoi(c.args[1]);
-          size.y=std::stoi(c.args[2]);
-        } catch (std::exception& e) {
-          printf("invalid args!\n");
+    switch (c.cmd) {
+      case cmdIdentify:
+        // check size
+        if (c.args.size()==3) {
+          animName=c.args[1];
+          animAuthor=c.args[2];
+        } else {
+          printf("invalid size!\n");
         }
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="rate") {
-      // check size
-      if (c.args.size()==3) {
-        try {
-          rate=std::stod(c.args[1]);
-          outRate=std::stod(c.args[2]);
-        } catch (std::exception& e) {
-          printf("invalid args!\n");
-        }
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="length") {
-      // check size
-      if (c.args.size()==3) {
-        try {
-          animBegin=std::stol(c.args[1]);
-          animBegin=std::stol(c.args[2]);
-        } catch (std::exception& e) {
-          printf("invalid args!\n");
-        }
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="insert") {
-      if (c.args.size()>=5) {
-        Coords objectPos;
-        Object* created;
-        try {
-          objectPos=Coords(std::stod(c.args[3]),std::stod(c.args[4]));
-        } catch (std::exception& e) {
-          objectPos=Coords(0,0);
-        }
-        if (c.args[1]=="Sprite") {
-          if (c.args.size()>=6) {
-            created=addObject<Sprite>(objectPos,c.args[2]);
-            created->setProp("file",c.args[5]);
-          } else {
-            printf("missing arguments!\n");
-          }
-        } else if (c.args[1]=="MotionSprite") {
-          if (c.args.size()>=8) {
-            created=addObject<MotionSprite>(objectPos,c.args[2]);
-            created->setProp("file",c.args[5]);
-            created->setProp("begin",c.args[6]);
-            created->setProp("end",c.args[7]);
-          } else {
-            printf("missing arguments!\n");
-          }
-        } else if (c.args[1]=="Text") {
-          if (c.args.size()>=7) {
-            created=addObject<Text>(objectPos,c.args[2]);
-            created->setProp("font",c.args[5]);
-            created->setProp("fontSize",c.args[6]);
-          } else {
-            printf("missing arguments!\n");
-          }
-        } else if (c.args[1]=="Rotoscope") {
-          addObject<Rotoscope>(objectPos,c.args[2]);
-        } else if (c.args[1]=="PartSys") {
-          addObject<PartSys>(objectPos,c.args[2]);
-        } else if (c.args[1]=="AudioTrack") {
-          if (c.args.size()>=6) {
-            created=addObject<AudioTrack>(objectPos,c.args[2]);
-            created->setProp("file",c.args[5]);
-          } else {
-            printf("missing arguments!\n");
+        break;
+      case cmdCanvas:
+        // check size
+        if (c.args.size()==3) {
+          try {
+            size.x=std::stoi(c.args[1]);
+            size.y=std::stoi(c.args[2]);
+          } catch (std::exception& e) {
+            printf("invalid args!\n");
           }
         } else {
-          printf("invalid object type!\n");
-        } 
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="prop") {
-      Object* which;
-      which=findByName(c.args[1]);
-      if (which==NULL) {
-        printf("that object doesn't exist!\n");
-      } else {
-        for (size_t i=2; i<c.args.size(); i+=2) {
-          which->setProp(c.args[i],c.args[i+1]);
+          printf("invalid size!\n");
         }
-      }
-    } else if (c.args[0]=="move") {
-      // check size
-      if (c.args.size()==4) {
-        try {
-          Object* which;
-          which=findByName(c.args[1]);
-          if (which==NULL) {
-            printf("that object doesn't exist!\n");
-          } else {
-            which->pos=Coords(std::stod(c.args[2]),std::stod(c.args[3]));
+        break;
+      case cmdRate:
+        // check size
+        if (c.args.size()==3) {
+          try {
+            rate=std::stod(c.args[1]);
+            outRate=std::stod(c.args[2]);
+          } catch (std::exception& e) {
+            printf("invalid args!\n");
           }
-        } catch (std::exception& e) {
-          printf("invalid args!\n");
+        } else {
+          printf("invalid size!\n");
         }
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="animate") {
-      // check size
-      if (c.args.size()==4) {
-        try {
-          Object* which;
-          which=findByName(c.args[1]);
-          if (which==NULL) {
-            printf("that object doesn't exist!\n");
-          } else {
-            which->animate(c.args[2],c.args[3]);
+        break;
+      case cmdLength:
+        // check size
+        if (c.args.size()==3) {
+          try {
+            animBegin=std::stol(c.args[1]);
+            animBegin=std::stol(c.args[2]);
+          } catch (std::exception& e) {
+            printf("invalid args!\n");
           }
-        } catch (std::exception& e) {
-          printf("invalid args!\n");
+        } else {
+          printf("invalid size!\n");
         }
-      } else {
-        printf("invalid size!\n");
-      }
-    } else if (c.args[0]=="end") {
-      exit(0);
-    } else {
-      printf("unknown command %s\n",c.args[0].c_str());
+        break;
+      case cmdInsert:
+        if (c.args.size()>=5) {
+          Coords objectPos;
+          Object* created;
+          try {
+            objectPos=Coords(std::stod(c.args[3]),std::stod(c.args[4]));
+          } catch (std::exception& e) {
+            objectPos=Coords(0,0);
+          }
+          if (c.args[1]=="Sprite") {
+            if (c.args.size()>=6) {
+              created=addObject<Sprite>(objectPos,c.args[2]);
+              created->setProp("file",c.args[5]);
+            } else {
+              printf("missing arguments!\n");
+            }
+          } else if (c.args[1]=="MotionSprite") {
+            if (c.args.size()>=8) {
+              created=addObject<MotionSprite>(objectPos,c.args[2]);
+              created->setProp("file",c.args[5]);
+              created->setProp("begin",c.args[6]);
+              created->setProp("end",c.args[7]);
+            } else {
+              printf("missing arguments!\n");
+            }
+          } else if (c.args[1]=="Text") {
+            if (c.args.size()>=7) {
+              created=addObject<Text>(objectPos,c.args[2]);
+              created->setProp("font",c.args[5]);
+              created->setProp("fontSize",c.args[6]);
+            } else {
+              printf("missing arguments!\n");
+            }
+          } else if (c.args[1]=="Rotoscope") {
+            addObject<Rotoscope>(objectPos,c.args[2]);
+          } else if (c.args[1]=="PartSys") {
+            addObject<PartSys>(objectPos,c.args[2]);
+          } else if (c.args[1]=="AudioTrack") {
+            if (c.args.size()>=6) {
+              created=addObject<AudioTrack>(objectPos,c.args[2]);
+              created->setProp("file",c.args[5]);
+            } else {
+              printf("missing arguments!\n");
+            }
+          } else {
+            printf("invalid object type!\n");
+          } 
+        } else {
+          printf("invalid size!\n");
+        }
+        break;
+      case cmdProp:
+        Object* which;
+        which=findByName(c.args[1]);
+        if (which==NULL) {
+          printf("that object doesn't exist!\n");
+        } else {
+          for (size_t i=2; i<c.args.size(); i+=2) {
+            which->setProp(c.args[i],c.args[i+1]);
+          }
+        }
+        break;
+      case cmdMove:
+        // check size
+        if (c.args.size()==4) {
+          try {
+            Object* which;
+            which=findByName(c.args[1]);
+            if (which==NULL) {
+              printf("that object doesn't exist!\n");
+            } else {
+              which->pos=Coords(std::stod(c.args[2]),std::stod(c.args[3]));
+            }
+          } catch (std::exception& e) {
+            printf("invalid args!\n");
+          }
+        } else {
+          printf("invalid size!\n");
+        }
+        break;
+      case cmdAnimate:
+        // check size
+        if (c.args.size()==4) {
+          try {
+            Object* which;
+            which=findByName(c.args[1]);
+            if (which==NULL) {
+              printf("that object doesn't exist!\n");
+            } else {
+              which->animate(c.args[2],c.args[3]);
+            }
+          } catch (std::exception& e) {
+            printf("invalid args!\n");
+          }
+        } else {
+          printf("invalid size!\n");
+        }
+        break;
+      case cmdEnd:
+        exit(0);
+        break;
+      default:
+        printf("unknown command %s\n",c.args[0].c_str());
+        break;
     }
   }
   for (size_t i=0; i<obj.size(); i++) {
