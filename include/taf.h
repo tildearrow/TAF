@@ -28,7 +28,7 @@ extern "C" {
   #include <libswscale/swscale.h>
 }
 
-#define TAF_VERSION "dev13"
+#define TAF_VERSION "dev14"
 
 #define TAF_MOTION_SAMPLES 8
 #define TAF_AUDIO_CHAN 2
@@ -63,7 +63,63 @@ enum Commands {
   cmdMax
 };
 
-extern const char* cmdNames[32];
+// about properties:
+// - they can have any type in PropertyFlags
+// - they can be either value, or array
+// - if array, its members are accessed using prop.INDEX
+// - INDEX may also be any of the GLSL vector components (with a custom rect extension):
+//   - prop.0  .x  .r  .s  .x
+//   - prop.1  .y  .g  .t  .y
+//   - prop.2  .z  .b  .p  .W
+//   - prop.3  .w  .a  .q  .H
+
+enum Properties {
+  propPos=0,
+  propScale,
+  propOrigin,
+  propRot,
+  propBlend,
+  propLife,
+
+  // for file-based objects
+  propFile,
+  propCrop,
+
+  // for motion objects
+  propSeek,
+  propSpeed,
+
+  // for text
+  propFont,
+  propText,
+  propTextColor,
+  propFontSize,
+  propLineHeight,
+  propCharSep,
+  propOutline,
+  propOutlineColor,
+
+  propMax
+};
+
+enum PropertyFlags {
+  pfChar=0,
+  pfShort,
+  pfInt,
+  pfLong,
+
+  pfHalf,
+  pfFloat,
+  pfDouble,
+
+  pfString,
+
+  pfReadOnly=0x100,
+  pfSetCall=0x200,
+};
+
+extern const char* cmdNames[cmdMax];
+extern const char* propNames[propMax];
 
 struct Color {
   float r, g, b, a;
@@ -317,10 +373,11 @@ class Scene {
     Object* findByName(string name);
     
     bool procCmd(string line);
+    bool procDel(int index);
 
     double getOutRate();
     
-    void update();
+    bool update();
     void draw();
     Scene(sf::RenderTarget& w);
 };

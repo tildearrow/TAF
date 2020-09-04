@@ -1,6 +1,6 @@
 #include "taf.h"
 
-const char* cmdNames[32]={
+const char* cmdNames[cmdMax]={
   "noop",
   "identify",
   "canvas",

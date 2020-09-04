@@ -39,6 +39,8 @@ bool Object::animate(string prop, string keyframes) {
   return false;
 }
 
+// TODO: properties and types.
+// we need to stop these string comparisons.
 bool Object::setProp(string prop, string value) {
   std::vector<string> olist;
   printf("setting property %s.\n",prop.c_str());

@@ -103,6 +103,21 @@ bool Scene::procCmd(string line) {
   return true;
 }
 
+// TODO: re-render the scene after deletion
+bool Scene::procDel(int index) {
+  if (index<0 || index>=cmdQueue.size()) {
+    logE("trying to delete out of range\n");
+    return false;
+  }
+  try {
+    cmdQueue.erase(cmdQueue.begin()+index);
+  } catch (std::exception& e) {
+    logE("exception while deleting\n");
+    return false;
+  }
+  return true;
+}
+
 Object* Scene::findByName(string name) {
   for (Object* i: obj) {
     if (i->name==name) return i;
@@ -114,7 +129,9 @@ double Scene::getOutRate() {
   return outRate;
 }
 
-void Scene::update() {
+#define dieError cmdIndex--; return false;
+
+bool Scene::update() {
   sf::Clock procTimeC;
   while (cmdQueue[cmdIndex].time==-1 || timeFrame==cmdQueue[cmdIndex].time) {
     if (cmdQueue[cmdIndex].time==-1) {
@@ -132,6 +149,7 @@ void Scene::update() {
           animAuthor=c.args[2];
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdCanvas:
@@ -142,9 +160,11 @@ void Scene::update() {
             size.y=std::stoi(c.args[2]);
           } catch (std::exception& e) {
             printf("invalid args!\n");
+            dieError;
           }
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdRate:
@@ -155,9 +175,11 @@ void Scene::update() {
             outRate=std::stod(c.args[2]);
           } catch (std::exception& e) {
             printf("invalid args!\n");
+            dieError;
           }
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdLength:
@@ -168,9 +190,11 @@ void Scene::update() {
             animBegin=std::stol(c.args[2]);
           } catch (std::exception& e) {
             printf("invalid args!\n");
+            dieError;
           }
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdInsert:
@@ -188,6 +212,7 @@ void Scene::update() {
               created->setProp("file",c.args[5]);
             } else {
               printf("missing arguments!\n");
+              dieError;
             }
           } else if (c.args[1]=="MotionSprite") {
             if (c.args.size()>=8) {
@@ -197,6 +222,7 @@ void Scene::update() {
               created->setProp("end",c.args[7]);
             } else {
               printf("missing arguments!\n");
+              dieError;
             }
           } else if (c.args[1]=="Text") {
             if (c.args.size()>=7) {
@@ -205,6 +231,7 @@ void Scene::update() {
               created->setProp("fontSize",c.args[6]);
             } else {
               printf("missing arguments!\n");
+              dieError;
             }
           } else if (c.args[1]=="Rotoscope") {
             addObject<Rotoscope>(objectPos,c.args[2]);
@@ -216,12 +243,15 @@ void Scene::update() {
               created->setProp("file",c.args[5]);
             } else {
               printf("missing arguments!\n");
+              dieError;
             }
           } else {
             printf("invalid object type!\n");
+            dieError;
           } 
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdProp:
@@ -229,6 +259,7 @@ void Scene::update() {
         which=findByName(c.args[1]);
         if (which==NULL) {
           printf("that object doesn't exist!\n");
+          dieError;
         } else {
           for (size_t i=2; i<c.args.size(); i+=2) {
             which->setProp(c.args[i],c.args[i+1]);
@@ -243,14 +274,17 @@ void Scene::update() {
             which=findByName(c.args[1]);
             if (which==NULL) {
               printf("that object doesn't exist!\n");
+              dieError;
             } else {
               which->pos=Coords(std::stod(c.args[2]),std::stod(c.args[3]));
             }
           } catch (std::exception& e) {
             printf("invalid args!\n");
+            dieError;
           }
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdAnimate:
@@ -261,14 +295,17 @@ void Scene::update() {
             which=findByName(c.args[1]);
             if (which==NULL) {
               printf("that object doesn't exist!\n");
+              dieError;
             } else {
               which->animate(c.args[2],c.args[3]);
             }
           } catch (std::exception& e) {
             printf("invalid args!\n");
+            dieError;
           }
         } else {
           printf("invalid size!\n");
+          dieError;
         }
         break;
       case cmdEnd:
@@ -276,6 +313,7 @@ void Scene::update() {
         break;
       default:
         printf("unknown command %s\n",c.args[0].c_str());
+        dieError;
         break;
     }
   }
@@ -286,6 +324,7 @@ void Scene::update() {
     }
   }
   procTime=procTimeC.getElapsedTime().asMicroseconds();
+  return true;
 }
 
 void Scene::draw() {

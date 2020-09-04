@@ -37,7 +37,7 @@ namespace ImGui {
   }
 }
 
-void analyzeCmd(Command c) {
+void analyzeCmd(Command c, int index) {
   if (c.time==-1) {
     ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,1,1));
     ImGui::Selectable(c.args[0].c_str());
@@ -64,6 +64,7 @@ void analyzeCmd(Command c) {
     if (ImGui::IsItemHovered()) {
       if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
         printf("delete item!\n");
+        s->procDel(index);
       }
     }
   }
@@ -242,7 +243,7 @@ int main(int argc, char** argv) {
         ImGui::PopStyleColor();
       }
       ImGui::NextColumn();
-      analyzeCmd(s->cmdQueue[i]);
+      analyzeCmd(s->cmdQueue[i],i);
       ImGui::NextColumn();
     }
     ImGui::End();
@@ -258,11 +259,14 @@ int main(int argc, char** argv) {
 
     // GRAPHICS CODE BEGIN //
     if (playing || frameAdvance) {
-      out.clear();
-      s->update();
-      s->draw();
-      out.display();
-      frameAdvance=false;
+      if (s->update()) {
+        out.clear();
+        s->draw();
+        out.display();
+        frameAdvance=false;
+      } else {
+        playing=false;
+      }
     }
     w.clear();
     //w.draw(outS,sf::BlendNone);
