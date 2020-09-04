@@ -50,10 +50,14 @@ void MotionSprite::draw() {
   if (iCount>48) iCount=48;
   
   // TODO: speed up
-  if (dec.frameTime<trackTime) {
+  while (dec.frameTime<trackTime) {
+    printf("decoding... times: %s<%s\n",tstos(dec.frameTime).c_str(),tstos(trackTime).c_str());
     tex.update(dec.frameData);
     curFrame++;
-    dec.decode();
+    if (!dec.decode()) {
+      logE("error while decoding!\n");
+      break;
+    }
   }
 
   if (anim.empty()) {
