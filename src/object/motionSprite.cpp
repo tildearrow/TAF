@@ -51,6 +51,15 @@ void MotionSprite::draw() {
   
   // TODO: speed up
   while (dec.frameTime<trackTime) {
+    // are we too far away? if so then seek
+    if ((trackTime-dec.frameTime).tv_sec>0 ||
+        (trackTime-dec.frameTime).tv_nsec>(long(1000000000/super->getOutRate())*3)) {
+      logW("prefer to seek here!\n");
+      dec.seek(trackTime);
+      while (!dec.endOfFile && dec.frameTime<trackTime) {
+        dec.decode();
+      }
+    }
     printf("decoding... times: %s<%s\n",tstos(dec.frameTime).c_str(),tstos(trackTime).c_str());
     tex.update(dec.frameData);
     curFrame++;

@@ -167,6 +167,7 @@ class VideoDecoder {
   bool opened;
   public:
     int width, height, index, copySize;
+    bool endOfFile;
     unsigned char* frameData;
     struct timespec frameTime;
     bool seek(struct timespec time);

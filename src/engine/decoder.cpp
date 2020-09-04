@@ -138,7 +138,10 @@ bool VideoDecoder::decode() {
     av_packet_unref(&orig_pkt);
     if (hasFrame>0) break;
   }
-  if (len<0) return false;
+  if (len<0) {
+    endOfFile=true;
+    return false;
+  }
   return true;
 }
 
@@ -149,10 +152,11 @@ bool VideoDecoder::seek(struct timespec time) {
 
   convTime=(time.tv_sec*strm->time_base.den+((time.tv_nsec/1000)*strm->time_base.den)/1000000)/strm->time_base.num;
   av_seek_frame(format,index,convTime,AVSEEK_FLAG_BACKWARD);
+  endOfFile=false;
   return true;
 }
 
-VideoDecoder::VideoDecoder(): format(NULL), decoder(NULL), decodeCount(0), strm(NULL), frame(NULL), convFrame(NULL), converter(NULL), opened(false), frameData(NULL), frameTime(mkts(0,0)) {
+VideoDecoder::VideoDecoder(): format(NULL), decoder(NULL), decodeCount(0), strm(NULL), frame(NULL), convFrame(NULL), converter(NULL), opened(false), endOfFile(false), frameData(NULL), frameTime(mkts(0,0)) {
   for (int i=0; i<4; i++) {
     convData[i]=NULL;
     convPitch[i]=0;
