@@ -374,6 +374,9 @@ class Scene {
     
     bool procCmd(string line);
     bool procDel(int index);
+    
+    bool seekFrame(int pos);
+    bool seekCmd(int index);
 
     double getOutRate();
     

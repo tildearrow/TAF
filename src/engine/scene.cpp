@@ -111,6 +111,10 @@ bool Scene::procDel(int index) {
   }
   try {
     cmdQueue.erase(cmdQueue.begin()+index);
+    if (cmdIndex>=index) {
+      cmdIndex--;
+      // TODO here
+    }
   } catch (std::exception& e) {
     logE("exception while deleting\n");
     return false;
@@ -127,6 +131,19 @@ Object* Scene::findByName(string name) {
 
 double Scene::getOutRate() {
   return outRate;
+}
+
+// TODO speed-up. this is linear
+bool Scene::seekFrame(int pos) {
+  while (!obj.empty()) {
+    delete obj[0];
+    obj.erase(obj.begin());
+  }
+  cmdIndex=0; frame=0; timeFrame=0;
+  for (int i=0; i<pos; i++) {
+    if (!update()) return false;
+  }
+  return true;
 }
 
 #define dieError cmdIndex--; return false;
@@ -187,7 +204,7 @@ bool Scene::update() {
         if (c.args.size()==3) {
           try {
             animBegin=std::stol(c.args[1]);
-            animBegin=std::stol(c.args[2]);
+            animEnd=std::stol(c.args[2]);
           } catch (std::exception& e) {
             printf("invalid args!\n");
             dieError;
@@ -324,6 +341,8 @@ bool Scene::update() {
     }
   }
   procTime=procTimeC.getElapsedTime().asMicroseconds();
+  frame++;
+  timeFrame=frame;
   return true;
 }
 
@@ -338,8 +357,6 @@ void Scene::draw() {
   debugString=strFormat("TAF (version " TAF_VERSION ")\n % 4.0f FPS, % 3d obj, proc % 5dµs draw % 3dµs\noutFrame %d, timeFrame %d, remaining cmds %d",round(double(1000000000/fps.getElapsedTime().asMicroseconds())/1000),obj.size(),procTime,renderTime.getElapsedTime().asMicroseconds(),frame,timeFrame,cmdQueue.size()-cmdIndex);
   fps.restart();
   // DEBUG INFO END //
-  frame++;
-  timeFrame=frame;
 }
 
 string Scene::objDebug() {

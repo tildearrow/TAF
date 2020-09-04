@@ -204,7 +204,9 @@ int main(int argc, char** argv) {
     ImGui::SFML::Update(w,imClock.restart());
 
     ImGui::Begin("Playback",NULL,ImGuiWindowFlags_NoTitleBar);
-    ImGui::Button(ICON_FA_FAST_BACKWARD);
+    if (ImGui::Button(ICON_FA_FAST_BACKWARD)) {
+      s->seekFrame(0);
+    }
     ImGui::SameLine();
     ImGui::Button(ICON_FA_BACKWARD);
     ImGui::SameLine();
@@ -228,7 +230,7 @@ int main(int argc, char** argv) {
     ImGui::SetColumnWidth(0,48);
     ImGui::SetColumnWidth(1,96);
     for (int i=0; i<s->cmdQueue.size(); i++) {
-      if ((s->cmdIndex-1)==i) {
+      if ((s->cmdIndex)==i) {
         ImGui::Text(ICON_FA_CHEVRON_RIGHT);
       }
       ImGui::NextColumn();
@@ -239,7 +241,11 @@ int main(int argc, char** argv) {
         ImGui::PopStyleColor();*/
       } else {
         ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,0.5,1));
-        ImGui::Selectable(strFormat("%ld",s->cmdQueue[i].time).c_str());
+        if (ImGui::Selectable(strFormat("%ld",s->cmdQueue[i].time).c_str())) {
+          // TODO: seek by command
+          logI("seeking! %ld\n",s->cmdQueue[i].time);
+          s->seekFrame(s->cmdQueue[i].time);
+        }
         ImGui::PopStyleColor();
       }
       ImGui::NextColumn();

@@ -36,15 +36,11 @@ bool MotionSprite::setProp(string prop, string value) {
   return false;
 }
 
+// TODO: move decoding to draw in order to allow seeking
 bool MotionSprite::update() {
   if (!Object::update()) return false;
   if (dec.isOpen()) {
     trackTime=trackTime+long(1000000000/super->getOutRate());
-    if (dec.frameTime<trackTime) {
-      tex.update(dec.frameData);
-      curFrame++;
-      dec.decode();
-    }
   }
   return true;
 }
@@ -52,6 +48,13 @@ bool MotionSprite::update() {
 void MotionSprite::draw() {
   int iCount=1+fabs(rot-oldRot)+sqrt(pow(pos.x-oldPos.x,2)+pow(pos.y-oldPos.y,2))/4;
   if (iCount>48) iCount=48;
+  
+  // TODO: speed up
+  if (dec.frameTime<trackTime) {
+    tex.update(dec.frameData);
+    curFrame++;
+    dec.decode();
+  }
 
   if (anim.empty()) {
     spr.setPosition(pos.x,pos.y);

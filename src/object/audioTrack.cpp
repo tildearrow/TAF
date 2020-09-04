@@ -41,10 +41,6 @@ bool AudioTrack::setProp(string prop, string value) {
 bool AudioTrack::update() {
   if (!Object::update()) return false;
   if (eof) return false;
-  return true;
-}
-
-void AudioTrack::draw() {
   size_t feedCount;
   // play
   if (file!=NULL) {
@@ -55,4 +51,9 @@ void AudioTrack::draw() {
       eof=true;
     }
   }
+  return true;
+}
+
+void AudioTrack::draw() {
+  // TODO: fix
 }
