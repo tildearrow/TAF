@@ -386,4 +386,10 @@ class Scene {
     Scene(sf::RenderTarget& w);
 };
 
+// GUI things
+
+struct EditItem {
+  
+};
+
 #endif

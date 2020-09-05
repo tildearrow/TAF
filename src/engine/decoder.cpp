@@ -149,10 +149,10 @@ bool VideoDecoder::decode() {
 // however this can be implemented later
 bool VideoDecoder::seek(struct timespec time) {
   long int convTime;
+  if (endOfFile) return false;
 
   convTime=(time.tv_sec*strm->time_base.den+((time.tv_nsec/1000)*strm->time_base.den)/1000000)/strm->time_base.num;
   av_seek_frame(format,index,convTime,AVSEEK_FLAG_BACKWARD);
-  endOfFile=false;
   return true;
 }
 

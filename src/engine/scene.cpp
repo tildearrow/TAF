@@ -114,6 +114,7 @@ bool Scene::procDel(int index) {
     if (cmdIndex>=index) {
       cmdIndex--;
       // TODO here
+      seekFrame(frame);
     }
   } catch (std::exception& e) {
     logE("exception while deleting\n");
