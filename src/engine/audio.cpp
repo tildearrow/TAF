@@ -12,7 +12,8 @@ const char* chanLetters[4]={
 };
 
 bool Audio::init() {
-  ac=jack_client_open("TAF",JackNullOption,&as);
+  ac=jack_client_open("TAF",JackNoStartServer,&as);
+  if (ac==NULL) return false;
   const char* cna=jack_get_client_name(ac);
   jack_set_process_callback(ac,audioCallback,this);
 

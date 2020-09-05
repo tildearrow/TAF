@@ -17,6 +17,15 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(include sfml/include src/gui IconFontCppHeaders)
 
+# temporarily use Homebrew to build on macOS
+if (APPLE)
+  include_directories(/usr/local/include)
+  link_directories(/usr/local/lib)
+  find_library(HAVE_GL OpenGL PATHS ${CMAKE_OSX_SYSROOT}/System/Library PATH_SUFFIXES Frameworks NO_DEFAULT_PATH)
+else (APPLE)
+  find_library(HAVE_GL GL)
+endif (APPLE)
+
 set(IMGUI_BASE
 src/gui/imgui.cpp
 src/gui/imgui_widgets.cpp
@@ -50,6 +59,6 @@ ${IMGUI_BASE}
 ${TAF_BASE}
 src/run/play.cpp)
 
-target_link_libraries(taf-play sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile GL)
+target_link_libraries(taf-play sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile ${HAVE_GL})
 
 install(TARGETS taf-play RUNTIME DESTINATION bin)

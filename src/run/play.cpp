@@ -79,20 +79,21 @@ int main(int argc, char** argv) {
   playing=false;
   bounds=true;
   frameAdvance=false;
-  if (argc<2) {
-    logE("usage: %s project\n",argv[0]);
-    return 1;
-  }
   
-  f=fopen(argv[1],"r");
-  if (f==NULL) {
-    logE("error while opening file\n");
-    return 1;
-  }
-  fgets(str,4095,f);
-  if (strcmp(str,"---TAF PROJECT BEGIN---\n")!=0) {
-    logE("not a TAF project!\n");
-    return 1;
+  if (argc<2) {
+    // blank project
+    f=NULL;
+  } else {
+    f=fopen(argv[1],"r");
+    if (f==NULL) {
+      logE("error while opening file\n");
+      return 1;
+    }
+    fgets(str,4095,f);
+    if (strcmp(str,"---TAF PROJECT BEGIN---\n")!=0) {
+      logE("not a TAF project!\n");
+      return 1;
+    }
   }
 
   /*sf::VideoMode vm;
@@ -152,18 +153,26 @@ int main(int argc, char** argv) {
   chdir(parentDir(argv[1]).c_str());
 #endif
   
-  curLine=1;
-  while (!feof(f)) {
-    fgets(str,4095,f);
-    if (str[strlen(str)-1]=='\n') str[strlen(str)-1]=0; // strip newline char
-    if (!s->procCmd(str)) {
-      logE("error at line %d!\n",curLine);
-      logE("> %s\n",str);
-      return 1;
+  if (f==NULL) {
+    // load a new project
+    s->procCmd("0 identify \"New Project\" \"Author\"");
+    s->procCmd("0 canvas 1920 1080");
+    s->procCmd("0 rate 30 30");
+    s->procCmd("0 length 1 7300");
+  } else {
+    curLine=1;
+    while (!feof(f)) {
+      fgets(str,4095,f);
+      if (str[strlen(str)-1]=='\n') str[strlen(str)-1]=0; // strip newline char
+      if (!s->procCmd(str)) {
+        logE("error at line %d!\n",curLine);
+        logE("> %s\n",str);
+        return 1;
+      }
+      curLine++;
     }
-    curLine++;
+    fclose(f);
   }
-  fclose(f);
   
   stabClock.restart();
   
