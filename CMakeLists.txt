@@ -54,11 +54,11 @@ src/object/rotoscope.cpp
 src/object/sprite.cpp
 src/object/text.cpp)
 
-add_executable(taf-play
+add_executable(taf
 ${IMGUI_BASE}
 ${TAF_BASE}
-src/run/play.cpp)
+src/run/main.cpp)
 
-target_link_libraries(taf-play sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile ${HAVE_GL})
+target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile ${HAVE_GL})
 
-install(TARGETS taf-play RUNTIME DESTINATION bin)
+install(TARGETS taf RUNTIME DESTINATION bin)

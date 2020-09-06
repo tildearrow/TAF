@@ -7,13 +7,7 @@ bool quit, playing, frameAdvance, bounds, shallRedraw;
 
 sf::RenderWindow w;
 sf::RenderTexture out;
-sf::Sprite outS;
 sf::Event e;
-
-sf::Font debugFont;
-sf::Text debugText;
-sf::Text guideLineText;
-sf::Text boundsText;
 
 string debugStr;
 
@@ -70,7 +64,7 @@ void analyzeCmd(Command c, int index) {
     }
   }
   
-  for (int i=1; i<c.args.size(); i++) {
+  for (size_t i=1; i<c.args.size(); i++) {
     ImGui::SameLine();
     ImGui::Text("%s",c.args[i].c_str());
   }
@@ -91,6 +85,7 @@ int main(int argc, char** argv) {
       logE("error while opening file\n");
       return 1;
     }
+    memset(str,0,4096);
     fgets(str,4095,f);
     if (strcmp(str,"---TAF PROJECT BEGIN---\n")!=0) {
       logE("not a TAF project!\n");
@@ -108,46 +103,35 @@ int main(int argc, char** argv) {
 
   ImGui::SFML::Init(w,false);
   
-  //ImGui::GetIO().Fonts->Clear();
-  ImGui::GetStyle().ScaleAllSizes(2);
+  scale=2; //getScale();
+  ImGui::GetStyle().ScaleAllSizes(scale);
   
-  ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/font.ttf",18*2);
+  if (!ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/font.ttf",18*scale)) {
+    logE("could not load UI font!\n");
+    return 1;
+  }
   
   ImFontConfig fc;
   fc.MergeMode=true;
   fc.GlyphMinAdvanceX=13.0f;
   static const ImWchar fir[]={ICON_MIN_FA,ICON_MAX_FA,0};
-  ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/FontAwesome.otf",18*2,&fc,fir);
+  if (!ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/FontAwesome.otf",18*2,&fc,fir)) {
+    logE("could not load icons!\n");
+    return 1;
+  }
   ImGui::SFML::UpdateFontTexture();
   
   out.create(1920,1080);
-  outS.setTexture(out.getTexture());
-  scale=double(dw)/3840.0;
-  outS.setScale(scale,scale);
   out.clear();
   out.display();
-  
-  debugFont.loadFromFile("../res/font.ttf");
-  debugText.setFont(debugFont);
-  debugText.setCharacterSize((18*dw)/1920);
-  debugText.setFillColor(sf::Color::White);
-  debugText.setOutlineColor(sf::Color::Black);
-  debugText.setOutlineThickness(1);
-  debugText.setPosition(16*dw/1920,16*dw/1920);
-  
-  guideLineText.setFont(debugFont);
-  guideLineText.setCharacterSize((12*dw)/1920);
-  guideLineText.setFillColor(sf::Color::White);
-  guideLineText.setOutlineColor(sf::Color::Black);
-  guideLineText.setOutlineThickness(1);
-  
-  boundsText.setFont(debugFont);
-  boundsText.setCharacterSize((12*dw)/1920);
-  boundsText.setFillColor(sf::Color::Red);
   
   w.setVerticalSyncEnabled(true);
 
   s=new Scene(out);
+  if (s==NULL) {
+    logE("could not create scene!\n");
+    return 1;
+  }
   
   if (f==NULL) {
     // load a new project
@@ -254,7 +238,7 @@ int main(int argc, char** argv) {
     ImGui::Columns(3,NULL,false);
     ImGui::SetColumnWidth(0,48);
     ImGui::SetColumnWidth(1,96);
-    for (int i=0; i<s->cmdQueue.size(); i++) {
+    for (size_t i=0; i<s->cmdQueue.size(); i++) {
       if ((s->cmdIndex)==i) {
         ImGui::Text(ICON_FA_CHEVRON_RIGHT);
       }
@@ -308,48 +292,9 @@ int main(int argc, char** argv) {
       out.display();
       shallRedraw=false;
     }
+
     w.clear();
-    //w.draw(outS,sf::BlendNone);
-    
-    /*
-    if (bounds) {
-      sf::RectangleShape boundRect;
-      boundRect.setFillColor(sf::Color::Transparent);
-      boundRect.setOutlineColor(sf::Color::Red);
-      boundRect.setOutlineThickness(1);
-      for (Rect& i: s->getAllBounds()) {
-        boundRect.setSize(sf::Vector2f(i.w*scale,i.h*scale));
-        boundRect.setPosition(sf::Vector2f(i.x*scale,i.y*scale));
-        w.draw(boundRect);
-        boundsText.setString(strFormat("%g, %g",i.x,i.y));
-        boundsText.setPosition((scale*i.x)+8,(scale*i.y)+4);
-        w.draw(boundsText);
-        boundsText.setString(strFormat("%g, %g",i.x+i.w,i.y+i.h));
-        boundsText.setPosition((scale*(i.x+i.w))-8-boundsText.getLocalBounds().width,(scale*(i.y+i.h))-32);
-        w.draw(boundsText);
-      }
-    }
-    
-    debugStr=s->debugString;
-    if (!playing) {
-      sf::VertexArray guideLines(sf::Lines,4);
-      guideLines[0].position=sf::Vector2f(0,sf::Mouse::getPosition().y);
-      guideLines[1].position=sf::Vector2f(w.getSize().x,sf::Mouse::getPosition().y);
-      guideLines[2].position=sf::Vector2f(sf::Mouse::getPosition().x,0);
-      guideLines[3].position=sf::Vector2f(sf::Mouse::getPosition().x,w.getSize().y);
-      debugStr+="\npaused.";
-      w.draw(guideLines);
-      guideLineText.setString(strFormat("%g, %g",(double)sf::Mouse::getPosition().x/scale,(double)sf::Mouse::getPosition().y/scale));
-      guideLineText.setPosition(sf::Mouse::getPosition().x+4,sf::Mouse::getPosition().y-8-guideLineText.getLocalBounds().height);
-      w.draw(guideLineText);
-      //debugStr+=strFormat(" %d, %d\n",sf::Mouse::getPosition().x,sf::Mouse::getPosition().y);
-    }
-    debugText.setString(sf::String::fromUtf8(debugStr.begin(),debugStr.end()));
-    w.draw(debugText);
-    */
-
     ImGui::SFML::Render(w);
-
     w.display();
     // GRAPHICS CODE END //
     if (quit) break;

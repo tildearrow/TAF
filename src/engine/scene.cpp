@@ -27,7 +27,7 @@ bool Scene::procCmd(string line) {
   ins.time=0;
   
   if (line[0]=='#') {
-    int lspos;
+    size_t lspos;
     // comment
     ins.time=-1;
     ins.cmd=cmdRem;
