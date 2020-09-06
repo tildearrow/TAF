@@ -21,6 +21,14 @@ string getAVError(int err) {
   return ret;
 }
 
+// convert to timestamp
+string mkTimeStamp(long int frame, double rate, bool drop) {
+  if (((int)rate)==0) {
+    return strFormat("??:??:??.??");
+  }
+  return strFormat("%02d:%02d:%02d.%02d",(frame/(int)rate)/3600,((frame/(int)rate)/60)%60,(frame/(int)rate)%60,frame%(int)rate);
+}
+
 string strFormat(const char* format, ...) {
   va_list va;
   char str[32768];

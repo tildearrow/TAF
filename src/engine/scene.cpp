@@ -27,10 +27,17 @@ bool Scene::procCmd(string line) {
   ins.time=0;
   
   if (line[0]=='#') {
+    int lspos;
     // comment
     ins.time=-1;
     ins.cmd=cmdRem;
-    ins.args.push_back(line);
+    lspos=line.find("# ");
+    if (lspos==string::npos) {
+      lspos=1;
+    } else {
+      lspos=2;
+    }
+    ins.args.push_back(line.substr(lspos));
     cmdQueue.push_back(ins);
     return true;
   }

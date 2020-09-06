@@ -3,7 +3,7 @@
 #include <imgui-SFML.h>
 #include <IconsFontAwesome4.h>
 
-bool quit, playing, frameAdvance, bounds;
+bool quit, playing, frameAdvance, bounds, shallRedraw;
 
 sf::RenderWindow w;
 sf::RenderTexture out;
@@ -65,6 +65,7 @@ void analyzeCmd(Command c, int index) {
       if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
         printf("delete item!\n");
         s->procDel(index);
+        shallRedraw=true;
       }
     }
   }
@@ -79,6 +80,7 @@ int main(int argc, char** argv) {
   playing=false;
   bounds=true;
   frameAdvance=false;
+  shallRedraw=false;
   
   if (argc<2) {
     // blank project
@@ -146,12 +148,6 @@ int main(int argc, char** argv) {
   w.setVerticalSyncEnabled(true);
 
   s=new Scene(out);
-
-#ifdef _WIN32
-  SetCurrentDirectory(parentDir(argv[1]).c_str());
-#else
-  chdir(parentDir(argv[1]).c_str());
-#endif
   
   if (f==NULL) {
     // load a new project
@@ -160,6 +156,12 @@ int main(int argc, char** argv) {
     s->procCmd("0 rate 30 30");
     s->procCmd("0 length 1 7300");
   } else {
+#ifdef _WIN32
+    SetCurrentDirectory(parentDir(argv[1]).c_str());
+#else
+    chdir(parentDir(argv[1]).c_str());
+#endif
+    
     curLine=1;
     while (!feof(f)) {
       fgets(str,4095,f);
@@ -212,9 +214,12 @@ int main(int argc, char** argv) {
     // GUI CODE BEGIN //
     ImGui::SFML::Update(w,imClock.restart());
 
+    // playback controls
     ImGui::Begin("Playback",NULL,ImGuiWindowFlags_NoTitleBar);
+    ImGui::Columns(3,NULL,false);
     if (ImGui::Button(ICON_FA_FAST_BACKWARD)) {
       s->seekFrame(0);
+      shallRedraw=true;
     }
     ImGui::SameLine();
     ImGui::Button(ICON_FA_BACKWARD);
@@ -232,8 +237,19 @@ int main(int argc, char** argv) {
     ImGui::Button(ICON_FA_FORWARD);
     ImGui::SameLine();
     ImGui::Button(ICON_FA_FAST_FORWARD);
+    
+    ImGui::NextColumn();
+    ImGui::Text("%s",mkTimeStamp(s->timeFrame,s->outRate,false).c_str());
+    
+    ImGui::NextColumn();
+    if (ImGui::InputInt("Frame",(int*)&s->frame,1,1,ImGuiInputTextFlags_EnterReturnsTrue)) {
+      playing=false;
+      s->seekFrame(s->frame);
+      shallRedraw=true;
+    }
     ImGui::End();
 
+    // script
     ImGui::Begin("Script");
     ImGui::Columns(3,NULL,false);
     ImGui::SetColumnWidth(0,48);
@@ -244,16 +260,16 @@ int main(int argc, char** argv) {
       }
       ImGui::NextColumn();
       if (s->cmdQueue[i].time==-1) {
-        /*
         ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,1,1));
-        ImGui::Selectable("#");
-        ImGui::PopStyleColor();*/
+        ImGui::Text("---");
+        ImGui::PopStyleColor();
       } else {
         ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,0.5,1));
         if (ImGui::Selectable(strFormat("%ld",s->cmdQueue[i].time).c_str())) {
           // TODO: seek by command
           logI("seeking! %ld\n",s->cmdQueue[i].time);
           s->seekFrame(s->cmdQueue[i].time);
+          shallRedraw=true;
         }
         ImGui::PopStyleColor();
       }
@@ -263,10 +279,12 @@ int main(int argc, char** argv) {
     }
     ImGui::End();
     
+    // inspector
     ImGui::Begin("Inspector");
     ImGui::Text("%s",s->objDebug().c_str());
     ImGui::End();
 
+    // viewer
     ImGui::Begin("Viewer");
     ImGui::Image(out,sf::Vector2f(1280,720),sf::FloatRect(0,0,1920,1080),sf::Color::White,sf::Color::Transparent);
     ImGui::End();
@@ -279,13 +297,21 @@ int main(int argc, char** argv) {
         s->draw();
         out.display();
         frameAdvance=false;
+        shallRedraw=false;
       } else {
         playing=false;
       }
     }
+    if (shallRedraw) {
+      out.clear();
+      s->draw();
+      out.display();
+      shallRedraw=false;
+    }
     w.clear();
     //w.draw(outS,sf::BlendNone);
     
+    /*
     if (bounds) {
       sf::RectangleShape boundRect;
       boundRect.setFillColor(sf::Color::Transparent);
@@ -320,6 +346,7 @@ int main(int argc, char** argv) {
     }
     debugText.setString(sf::String::fromUtf8(debugStr.begin(),debugStr.end()));
     w.draw(debugText);
+    */
 
     ImGui::SFML::Render(w);
 

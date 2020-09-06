@@ -42,6 +42,7 @@ extern int dw, dh;
 string parentDir(string what);
 string strFormat(const char* format, ...);
 string getAVError(int err);
+string mkTimeStamp(long int frame, double rate, bool drop);
 std::vector<string> disarmList(string list);
 
 enum Commands {
@@ -345,12 +346,12 @@ class Scene {
   string animName, animAuthor;
   sf::Clock fps;
   sf::Clock renderTime;
-  long int procTime;
-  long int frame, timeFrame;
-  double rate, outRate;
-  long int animBegin, animEnd;
   
   public:
+    double rate, outRate;
+    long int procTime;
+    long int animBegin, animEnd;
+    long int frame, timeFrame;
     long int cmdIndex;
     std::vector<Object*> obj;
     std::vector<Command> cmdQueue;
