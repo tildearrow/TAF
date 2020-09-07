@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
 
   ImGui::SFML::Init(w,false);
   
-  scale=2; //getScale();
+  scale=getScale();
   ImGui::GetStyle().ScaleAllSizes(scale);
   
   if (!ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/font.ttf",18*scale)) {

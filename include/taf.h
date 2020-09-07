@@ -45,6 +45,8 @@ string getAVError(int err);
 string mkTimeStamp(long int frame, double rate, bool drop);
 std::vector<string> disarmList(string list);
 
+double getScale();
+
 enum Commands {
   cmdNoOp=0,
   cmdIdentify,

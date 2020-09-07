@@ -22,8 +22,10 @@ if (APPLE)
   include_directories(/usr/local/include)
   link_directories(/usr/local/lib)
   find_library(HAVE_GL OpenGL PATHS ${CMAKE_OSX_SYSROOT}/System/Library PATH_SUFFIXES Frameworks NO_DEFAULT_PATH)
+  find_library(HAVE_APPKIT AppKit PATHS ${CMAKE_OSX_SYSROOT}/System/Library PATH_SUFFIXES Frameworks NO_DEFAULT_PATH)
 else (APPLE)
   find_library(HAVE_GL GL)
+  find_library(HAVE_JACK jack)
 endif (APPLE)
 
 set(IMGUI_BASE
@@ -44,6 +46,7 @@ src/engine/stream.cpp
 
 src/util/list.cpp
 src/util/log.cpp
+src/util/scale.cpp
 src/util/string.cpp
 src/util/strings.cpp
 src/util/time.cpp
@@ -55,12 +58,26 @@ src/object/rotoscope.cpp
 src/object/sprite.cpp
 src/object/text.cpp)
 
-add_executable(taf
-${IMGUI_BASE}
-${TAF_BASE}
+set(GUI_BASE
 src/run/editItem.cpp
 src/run/main.cpp)
 
-target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile ${HAVE_GL})
+if (APPLE)
+  list(APPEND GUI_BASE src/util/nsstub.m)
+endif (APPLE)
+
+add_executable(taf
+${IMGUI_BASE}
+${TAF_BASE}
+${GUI_BASE})
+target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale sndfile ${HAVE_GL})
+
+if (HAVE_JACK)
+  target_link_libraries(taf ${HAVE_JACK})
+endif (HAVE_JACK)
+
+if (APPLE)
+  target_link_libraries(taf ${HAVE_APPKIT})
+endif (APPLE)
 
 install(TARGETS taf RUNTIME DESTINATION bin)
