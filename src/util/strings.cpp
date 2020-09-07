@@ -16,3 +16,16 @@ const char* cmdNames[cmdMax]={
   "attach",
   "end"
 };
+
+const char* objTypes[objMax]={
+  "Sprite",
+  "MotionSprite",
+  "Text",
+  "Rotoscope",
+  "PartSys",
+  "AudioTrack",
+  
+  "Private",
+  "Object",
+  "Particle"
+};

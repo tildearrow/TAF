@@ -64,6 +64,22 @@ enum Commands {
   cmdMax
 };
 
+enum ObjectTypes {
+  objSprite,
+  objMotionSprite,
+  objText,
+  objRotoscope,
+  objPartSys,
+  objAudioTrack,
+  
+  // private objects
+  objPrivate,
+  objObject,
+  objParticle,
+  
+  objMax
+};
+
 // about properties:
 // - they can have any type in PropertyFlags
 // - they can be either value, or array
@@ -120,6 +136,7 @@ enum PropertyFlags {
 };
 
 extern const char* cmdNames[cmdMax];
+extern const char* objTypes[objMax];
 extern const char* propNames[propMax];
 
 struct Color {
@@ -374,7 +391,8 @@ class Scene {
     
     Object* findByName(string name);
     
-    bool procCmd(string line);
+    bool repCmd(int index, string line);
+    bool procCmd(string line, int index=-1);
     bool procDel(int index);
     
     bool seekFrame(int pos);
@@ -390,7 +408,69 @@ class Scene {
 // GUI things
 
 struct EditItem {
+  long int time;
+  int cmd;
   
+  // specific to cmdIdentify
+  struct {
+    string name, author;
+  } id;
+  
+  // specific to cmdCanvas
+  struct {
+    int width, height;
+  } c;
+  
+  // specific to cmdRate
+  struct {
+    double sr, ofr;
+  } r;
+  
+  // specific to cmdLength
+  struct {
+    int begin, end;
+  } l;
+  
+  // specific to cmdRem
+  struct {
+    string text;
+  } rem;
+  
+  // specific to cmdInsert
+  struct {
+    int type;
+    string name;
+    float x, y;
+    
+    // TODO: arguments
+  } in;
+  
+  // specific to cmdProp
+  struct {
+    string obj;
+    std::vector<string> props;
+  } p;
+  
+  // specific to cmdMove
+  struct {
+    string obj;
+    float x, y;
+  } m;
+  
+  // specific to cmdAnimate
+  struct {
+    string obj, prop;
+    
+    std::vector<Keyframe> kf;
+  } a;
+  
+  // not done yet
+  // specific to cmdPipeline
+  // specific to cmdEffect
+  // specific to cmdAttach
+  
+  bool decompose(Command c);
+  string compose();
 };
 
 #endif

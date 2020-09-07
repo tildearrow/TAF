@@ -29,6 +29,7 @@ endif (APPLE)
 set(IMGUI_BASE
 src/gui/imgui.cpp
 src/gui/imgui_widgets.cpp
+src/gui/imgui_stdlib.cpp
 src/gui/imgui_draw.cpp
 src/gui/imgui-SFML.cpp)
 
@@ -57,6 +58,7 @@ src/object/text.cpp)
 add_executable(taf
 ${IMGUI_BASE}
 ${TAF_BASE}
+src/run/editItem.cpp
 src/run/main.cpp)
 
 target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale jack sndfile ${HAVE_GL})

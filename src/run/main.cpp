@@ -1,5 +1,6 @@
 #include "taf.h"
 #include <imgui.h>
+#include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <IconsFontAwesome4.h>
 
@@ -22,12 +23,95 @@ int dw, dh;
 
 double scale;
 
+EditItem edit;
+int editItemPos;
+
 namespace ImGui {
   void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect, const sf::Color& tintColor, const sf::Color& borderColor) {
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
     ImVec2 uv0(textureRect.left / textureSize.x, (textureRect.top + textureRect.height) /   textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x, textureRect.top / textureSize.y);
     Image(texture.getTexture().getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
+  }
+}
+
+char stringtest[4096];
+
+void drawEditItem(int index) {
+  ImGui::Combo("Command",&edit.cmd,cmdNames,cmdMax);
+  
+  ImGui::Separator();
+  
+  // the fuss
+  switch (edit.cmd) {
+    case cmdNoOp:
+      break;
+    case cmdIdentify:
+      ImGui::InputText("Name",&edit.id.name);
+      ImGui::InputText("Author",&edit.id.author);
+      break;
+    case cmdCanvas:
+      ImGui::InputInt("Width",&edit.c.width);
+      ImGui::InputInt("Height",&edit.c.height);
+      break;
+    case cmdRate:
+      ImGui::InputDouble("Tick rate",&edit.r.sr);
+      ImGui::InputDouble("Frame rate",&edit.r.ofr);
+      break;
+    case cmdLength:
+      ImGui::InputInt("Begin",&edit.l.begin);
+      ImGui::InputInt("End",&edit.l.end);
+      break;
+    case cmdRem:
+      ImGui::InputText("Text",&edit.rem.text);
+      break;
+    case cmdInsert:
+      ImGui::Combo("Type",&edit.in.type,objTypes,objPrivate);
+      ImGui::InputText("Name",&edit.in.name);
+      ImGui::InputFloat("X",&edit.in.x);
+      ImGui::InputFloat("Y",&edit.in.y);
+      
+      // TODO: arguments for object types
+      break;
+    case cmdProp:
+      ImGui::InputText("Object",&edit.p.obj);
+      
+      // TODO: the actual thing
+      break;    
+    case cmdMove:
+      ImGui::InputText("Object",&edit.m.obj);
+      
+      ImGui::InputFloat("X",&edit.m.x);
+      ImGui::InputFloat("Y",&edit.m.y);
+      break;
+    case cmdAnimate:
+      ImGui::InputText("Object",&edit.a.obj);
+      ImGui::InputText("Property",&edit.a.prop);
+      
+      ImGui::Button(ICON_FA_PENCIL " Edit");
+      break;
+    case cmdPipeline:
+      break;
+    case cmdEffect:
+      break;
+    case cmdAttach:
+      break;
+    case cmdEnd:
+      break;
+    default:
+      ImGui::Text("this command is not implemented. please bug the author.");
+      break;
+  }
+  
+  if (ImGui::Button("OK")) {
+    editItemPos=-1;
+    if (!s->repCmd(index,edit.compose())) {
+      logE("we failed\n");
+    }
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Cancel")) {
+    editItemPos=-1;
   }
 }
 
@@ -51,6 +135,8 @@ void analyzeCmd(Command c, int index) {
     if (ImGui::IsItemHovered()) {
       if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
         printf("edit item!\n");
+        editItemPos=index;
+        edit.decompose(c);
       }
     }
     ImGui::SameLine();
@@ -68,6 +154,10 @@ void analyzeCmd(Command c, int index) {
     ImGui::SameLine();
     ImGui::Text("%s",c.args[i].c_str());
   }
+  
+  if (index==editItemPos) {
+    drawEditItem(index);
+  }
 }
 
 int main(int argc, char** argv) {
@@ -75,6 +165,7 @@ int main(int argc, char** argv) {
   bounds=true;
   frameAdvance=false;
   shallRedraw=false;
+  editItemPos=-1;
   
   if (argc<2) {
     // blank project
@@ -121,7 +212,11 @@ int main(int argc, char** argv) {
   }
   ImGui::SFML::UpdateFontTexture();
   
-  out.create(1920,1080);
+  // TODO: set to proper canvas resolution
+  if (!out.create(1920,1080)) {
+    logE("could not create output!\n");
+    return 1;
+  }
   out.clear();
   out.display();
   
@@ -147,9 +242,12 @@ int main(int argc, char** argv) {
 #endif
     
     curLine=1;
+    // TODO: handle strings larger than 4095
     while (!feof(f)) {
       fgets(str,4095,f);
-      if (str[strlen(str)-1]=='\n') str[strlen(str)-1]=0; // strip newline char
+      if (strlen(str)>0) {
+        if (str[strlen(str)-1]=='\n') str[strlen(str)-1]=0; // strip newline char
+      }
       if (!s->procCmd(str)) {
         logE("error at line %d!\n",curLine);
         logE("> %s\n",str);
@@ -177,9 +275,7 @@ int main(int argc, char** argv) {
           quit=true;
           break;
         case sf::Event::KeyPressed:
-          if (e.key.code==sf::Keyboard::Escape) {
-            quit=true;
-          } else if (e.key.code==sf::Keyboard::Space) {
+          if (e.key.code==sf::Keyboard::Space) {
             playing=!playing;
           } else if (e.key.code==sf::Keyboard::Period) {
             frameAdvance=true;
@@ -197,6 +293,32 @@ int main(int argc, char** argv) {
     }
     // GUI CODE BEGIN //
     ImGui::SFML::Update(w,imClock.restart());
+    
+    // menu bar
+    ImGui::BeginMainMenuBar();
+    if (ImGui::BeginMenu("file")) {
+      ImGui::MenuItem("new");
+      ImGui::MenuItem("open...");
+      ImGui::Separator();
+      ImGui::MenuItem("save");
+      ImGui::MenuItem("save as...");
+      ImGui::Separator();
+      if (ImGui::MenuItem("exit")) {
+        quit=true;
+      }
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("edit")) {
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("window")) {
+      ImGui::MenuItem("playback");
+      ImGui::MenuItem("script");
+      ImGui::MenuItem("inspector");
+      ImGui::MenuItem("viewer");
+      ImGui::EndMenu();
+    }
+    ImGui::EndMainMenuBar();
 
     // playback controls
     ImGui::Begin("Playback",NULL,ImGuiWindowFlags_NoTitleBar);

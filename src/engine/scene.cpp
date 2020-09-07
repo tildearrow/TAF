@@ -14,7 +14,7 @@ Coords Scene::mousePos() {
                 sf::Mouse::getPosition().y/(win->getSize().y/size.y));
 }
 
-bool Scene::procCmd(string line) {
+bool Scene::procCmd(string line, int index) {
   Command ins;
   bool stringMode;
   bool listMode;
@@ -106,7 +106,11 @@ bool Scene::procCmd(string line) {
     }
   }
   
-  cmdQueue.push_back(ins);
+  if (index==-1) {
+    cmdQueue.push_back(ins);
+  } else {
+    cmdQueue.insert(cmdQueue.begin()+index,ins);
+  }
   return true;
 }
 
@@ -127,6 +131,14 @@ bool Scene::procDel(int index) {
     logE("exception while deleting\n");
     return false;
   }
+  return true;
+}
+
+bool Scene::repCmd(int index, string line) {
+  if (!procCmd(line,index)) {
+    return false;
+  }
+  procDel(index+1);
   return true;
 }
 

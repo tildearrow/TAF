@@ -45,6 +45,7 @@ bool MotionSprite::update() {
   return true;
 }
 
+// TODO: we have consistency issues here...
 void MotionSprite::draw() {
   int iCount=1+fabs(rot-oldRot)+sqrt(pow(pos.x-oldPos.x,2)+pow(pos.y-oldPos.y,2))/4;
   if (iCount>48) iCount=48;
@@ -54,18 +55,29 @@ void MotionSprite::draw() {
     // are we too far away? if so then seek
     if ((trackTime-dec.frameTime).tv_sec>0 ||
         (trackTime-dec.frameTime).tv_nsec>(long(1000000000/super->getOutRate())*3)) {
-      //logW("prefer to seek here!\n");
+      logW("prefer to seek here!\n");
       dec.seek(trackTime);
       while (!dec.endOfFile && dec.frameTime<trackTime) {
-        dec.decode();
+        if (!dec.decode()) {
+          logE("error while decoding!\n");
+          break;
+        }
+        curFrame++;
       }
-    }
-    //printf("decoding... times: %s<%s\n",tstos(dec.frameTime).c_str(),tstos(trackTime).c_str());
-    tex.update(dec.frameData);
-    curFrame++;
-    if (!dec.decode()) {
-      //logE("error while decoding!\n");
+      tex.update(dec.frameData);
+      if (!dec.decode()) {
+        logE("error while decoding!\n");
+        break;
+      }
       break;
+    } else {
+      printf("decoding... times: %s<%s\n",tstos(dec.frameTime).c_str(),tstos(trackTime).c_str());
+      tex.update(dec.frameData);
+      curFrame++;
+      if (!dec.decode()) {
+        logE("error while decoding!\n");
+        break;
+      }
     }
   }
 
