@@ -407,6 +407,11 @@ class Scene {
 
 // GUI things
 
+struct Property {
+  string name;
+  string value;
+};
+
 struct EditItem {
   long int time;
   int cmd;
@@ -448,7 +453,7 @@ struct EditItem {
   // specific to cmdProp
   struct {
     string obj;
-    std::vector<string> props;
+    std::vector<Property> props;
   } p;
   
   // specific to cmdMove

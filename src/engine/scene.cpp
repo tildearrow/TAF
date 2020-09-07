@@ -48,11 +48,17 @@ bool Scene::procCmd(string line, int index) {
       backEscape=false;
     } else switch (c) {
       case '[':
-        if (listMode) return false;
+        if (listMode) {
+          logE("procCmd: already in a list!\n");
+          return false;
+        }
         listMode=true;
         break;
       case ']':
-        if (!listMode) return false;
+        if (!listMode) {
+          logE("procCmd: not in a list!\n");
+          return false;
+        }
         listMode=false;
         break;
       case '"':

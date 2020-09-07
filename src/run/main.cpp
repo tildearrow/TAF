@@ -76,7 +76,25 @@ void drawEditItem(int index) {
     case cmdProp:
       ImGui::InputText("Object",&edit.p.obj);
       
-      // TODO: the actual thing
+      for (size_t i=0; i<edit.p.props.size(); i++) {
+        ImGui::PushID(strFormat("prop%d",i).c_str());
+        ImGui::SetNextItemWidth(192);
+        ImGui::InputText(":",&edit.p.props[i].name);
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(400);
+        ImGui::InputText(".",&edit.p.props[i].value);
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_TIMES)) {
+          edit.p.props.erase(edit.p.props.begin()+i);
+          i--;
+        }
+        ImGui::PopID();
+      }
+      if (ImGui::Button(ICON_FA_PLUS)) {
+        Property newprop;
+        newprop.name=""; newprop.value="";
+        edit.p.props.push_back(newprop);
+      }
       break;    
     case cmdMove:
       ImGui::InputText("Object",&edit.m.obj);
