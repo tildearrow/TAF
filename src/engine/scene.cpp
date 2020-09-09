@@ -53,6 +53,7 @@ bool Scene::procCmd(string line, int index) {
           return false;
         }
         listMode=true;
+        arg+='[';
         break;
       case ']':
         if (!listMode) {
@@ -60,6 +61,7 @@ bool Scene::procCmd(string line, int index) {
           return false;
         }
         listMode=false;
+        arg+=']';
         break;
       case '"':
         stringMode=!stringMode;

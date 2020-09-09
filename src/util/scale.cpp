@@ -1,4 +1,7 @@
 #include "taf.h"
+#ifdef HAVE_X11
+#include <X11/Xlib.h>
+#endif
 
 #ifdef __APPLE__
 extern "C" {

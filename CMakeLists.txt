@@ -26,6 +26,9 @@ if (APPLE)
 else (APPLE)
   find_library(HAVE_GL GL)
   find_library(HAVE_JACK jack)
+  if (UNIX)
+    find_library(HAVE_X11 X11)
+  endif (UNIX)
 endif (APPLE)
 
 set(IMGUI_BASE
@@ -75,6 +78,11 @@ target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat
 if (HAVE_JACK)
   target_link_libraries(taf ${HAVE_JACK})
 endif (HAVE_JACK)
+
+if (HAVE_X11)
+  target_link_libraries(taf ${HAVE_X11})
+  target_compile_definitions(taf PUBLIC HAVE_X11)
+endif (HAVE_X11)
 
 if (APPLE)
   target_link_libraries(taf ${HAVE_APPKIT})

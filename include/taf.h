@@ -28,7 +28,7 @@ extern "C" {
   #include <libswscale/swscale.h>
 }
 
-#define TAF_VERSION "dev14"
+#define TAF_VERSION "dev15"
 
 #define TAF_MOTION_SAMPLES 8
 #define TAF_AUDIO_CHAN 2

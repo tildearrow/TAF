@@ -10,6 +10,8 @@ sf::RenderWindow w;
 sf::RenderTexture out;
 sf::Event e;
 
+sf::Vector2f outSize;
+
 string debugStr;
 
 Scene* s;
@@ -178,6 +180,22 @@ void analyzeCmd(Command c, int index) {
   }
 }
 
+void calcOutSize(float availX, float availY) {
+  ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,ImVec2(0,0));
+  if ((availX/availY)<(1920.0f/1080.0f)) {
+    outSize.x=availX;
+    outSize.y=(availX*1080.0f)/1920.0f;
+    ImGui::Dummy(ImVec2(1,(availY-outSize.y)/2));
+  } else {
+    outSize.x=(availY*1920.0f)/1080.0f;
+    outSize.y=availY;
+    ImGui::Dummy(ImVec2((availX-outSize.x)/2,1));
+    ImGui::SameLine();
+  }
+  ImGui::Image(out,outSize,sf::FloatRect(0,0,1920,1080),sf::Color::White,sf::Color::Transparent);
+  ImGui::PopStyleVar();
+}
+
 int main(int argc, char** argv) {
   playing=false;
   bounds=true;
@@ -224,7 +242,7 @@ int main(int argc, char** argv) {
   fc.MergeMode=true;
   fc.GlyphMinAdvanceX=13.0f;
   static const ImWchar fir[]={ICON_MIN_FA,ICON_MAX_FA,0};
-  if (!ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/FontAwesome.otf",18*2,&fc,fir)) {
+  if (!ImGui::GetIO().Fonts->AddFontFromFileTTF("../res/FontAwesome.otf",18*scale,&fc,fir)) {
     logE("could not load icons!\n");
     return 1;
   }
@@ -410,7 +428,7 @@ int main(int argc, char** argv) {
 
     // viewer
     ImGui::Begin("Viewer");
-    ImGui::Image(out,sf::Vector2f(1280,720),sf::FloatRect(0,0,1920,1080),sf::Color::White,sf::Color::Transparent);
+    calcOutSize(ImGui::GetWindowContentRegionWidth(),ImGui::GetContentRegionAvail().y);
     ImGui::End();
     // GUI CODE END //
 
