@@ -24,7 +24,7 @@ bool Audio::init() {
   jack_activate(ac);
 
   for (int i=0; i<TAF_AUDIO_CHAN; i++) {
-    jack_connect(ac,(std::string(cna)+":out"+chanLetters[i]).c_str(),strFormat("system:playback_%d",i+1).c_str());
+    jack_connect(ac,(std::string(cna)+":out"+chanLetters[i]).c_str(),fmt::sprintf("system:playback_%d",i+1).c_str());
   }
   return true;
 }

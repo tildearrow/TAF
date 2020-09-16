@@ -382,7 +382,7 @@ void Scene::draw() {
     i->draw();
   }
   // DEBUG INFO BEGIN //
-  debugString=strFormat("TAF (version " TAF_VERSION ")\n % 4.0f FPS, % 3d obj, proc % 5dµs draw % 3dµs\noutFrame %d, timeFrame %d, remaining cmds %d",round(double(1000000000/fps.getElapsedTime().asMicroseconds())/1000),obj.size(),procTime,renderTime.getElapsedTime().asMicroseconds(),frame,timeFrame,cmdQueue.size()-cmdIndex);
+  debugString=fmt::sprintf("TAF (version " TAF_VERSION ")\n % 4.0f FPS, % 3d obj, proc % 5dµs draw % 3dµs\noutFrame %d, timeFrame %d, remaining cmds %d",round(double(1000000000/fps.getElapsedTime().asMicroseconds())/1000),obj.size(),procTime,renderTime.getElapsedTime().asMicroseconds(),frame,timeFrame,cmdQueue.size()-cmdIndex);
   fps.restart();
   // DEBUG INFO END //
 }
@@ -390,7 +390,7 @@ void Scene::draw() {
 string Scene::objDebug() {
   string ret;
   for (Object* i: obj) {
-    ret+=strFormat("%s %s (%s): [%g, %g] [%gx%g] %g°\n",i->getObjectType().c_str(),i->name.c_str(),i->getLife().c_str(),i->pos.x,i->pos.y,i->scale.x,i->scale.y,i->rot);
+    ret+=fmt::sprintf("%s %s (%s): [%g, %g] [%gx%g] %g°\n",i->getObjectType().c_str(),i->name.c_str(),i->getLife().c_str(),i->pos.x,i->pos.y,i->scale.x,i->scale.y,i->rot);
   }
   return ret;
 }

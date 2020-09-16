@@ -79,7 +79,7 @@ void drawEditItem(int index) {
       ImGui::InputText("Object",&edit.p.obj);
       
       for (size_t i=0; i<edit.p.props.size(); i++) {
-        ImGui::PushID(strFormat("prop%d",i).c_str());
+        ImGui::PushID(fmt::sprintf("prop%d",i).c_str());
         ImGui::SetNextItemWidth(192);
         ImGui::InputText(":",&edit.p.props[i].name);
         ImGui::SameLine();
@@ -407,7 +407,7 @@ int main(int argc, char** argv) {
         ImGui::PopStyleColor();
       } else {
         ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5,1,0.5,1));
-        if (ImGui::Selectable(strFormat("%ld",s->cmdQueue[i].time).c_str())) {
+        if (ImGui::Selectable(fmt::sprintf("%ld",s->cmdQueue[i].time).c_str())) {
           // TODO: seek by command
           logI("seeking! %ld\n",s->cmdQueue[i].time);
           s->seekFrame(s->cmdQueue[i].time);

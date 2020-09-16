@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <fmt/printf.h>
 #include <SFML/Graphics.hpp>
 #include <sndfile.h>
 #include <jack/jack.h>
@@ -41,7 +42,6 @@ typedef std::string string;
 extern int dw, dh;
 
 string parentDir(string what);
-string strFormat(const char* format, ...);
 string getAVError(int err);
 string mkTimeStamp(long int frame, double rate, bool drop);
 std::vector<string> disarmList(string list);

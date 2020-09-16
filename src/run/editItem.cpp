@@ -112,38 +112,38 @@ string EditItem::compose() {
   string ret;
   switch (cmd) {
     case cmdNoOp:
-      ret=strFormat("%d noop",time);
+      ret=fmt::sprintf("%d noop",time);
       break;
     case cmdIdentify:
-      ret=strFormat("%d identify %s %s",time,argize(id.name),argize(id.author));
+      ret=fmt::sprintf("%d identify %s %s",time,argize(id.name),argize(id.author));
       break;
     case cmdCanvas:
-      ret=strFormat("%d canvas %d %d",time,this->c.width,this->c.height);
+      ret=fmt::sprintf("%d canvas %d %d",time,this->c.width,this->c.height);
       break;
     case cmdRate:
-      ret=strFormat("%d rate %g %g",time,r.sr,r.ofr);
+      ret=fmt::sprintf("%d rate %g %g",time,r.sr,r.ofr);
       break;
     case cmdLength:
-      ret=strFormat("%d canvas %d %d",time,l.begin,l.end);
+      ret=fmt::sprintf("%d canvas %d %d",time,l.begin,l.end);
       break;
     case cmdRem:
-      ret=strFormat("%d rem %s",time,rem.text);
+      ret=fmt::sprintf("%d rem %s",time,rem.text);
       break;
     case cmdInsert:
-      ret=strFormat("%d insert %s %s %g %g",time,objTypes[in.type],argize(in.name),in.x,in.y);
+      ret=fmt::sprintf("%d insert %s %s %g %g",time,objTypes[in.type],argize(in.name),in.x,in.y);
       // TODO: type arguments
       break;
     case cmdProp:
-      ret=strFormat("%d prop %s",time,argize(p.obj));
+      ret=fmt::sprintf("%d prop %s",time,argize(p.obj));
       for (Property& i: p.props) {
-        ret+=strFormat(" %s %s",argize(i.name),argize(i.value));
+        ret+=fmt::sprintf(" %s %s",argize(i.name),argize(i.value));
       }
       break;    
     case cmdMove:
-      ret=strFormat("%d move %s %g %g",time,argize(m.obj),m.x,m.y);
+      ret=fmt::sprintf("%d move %s %g %g",time,argize(m.obj),m.x,m.y);
       break;
     case cmdAnimate:
-      ret=strFormat("%d animate %s %s",time,argize(a.obj),argize(a.prop));
+      ret=fmt::sprintf("%d animate %s %s",time,argize(a.obj),argize(a.prop));
       break;
     case cmdPipeline:
       break;

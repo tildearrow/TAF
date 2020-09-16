@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+add_subdirectory(fmt)
+
 # legacy. it has always worked well.
 # heck, it is not even legacy. you're just ignoring AMD here.
 set(OpenGL_GL_PREFERENCE "LEGACY")
@@ -15,7 +17,7 @@ add_subdirectory(SFML)
 project(TAF)
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(include sfml/include src/gui IconFontCppHeaders)
+include_directories(include fmt/include sfml/include src/gui IconFontCppHeaders)
 
 # temporarily use Homebrew to build on macOS
 if (APPLE)
@@ -73,7 +75,7 @@ add_executable(taf
 ${IMGUI_BASE}
 ${TAF_BASE}
 ${GUI_BASE})
-target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale sndfile ${HAVE_GL})
+target_link_libraries(taf sfml-graphics sfml-window sfml-system avcodec avformat avutil swscale sndfile fmt ${HAVE_GL})
 
 if (HAVE_JACK)
   target_link_libraries(taf ${HAVE_JACK})

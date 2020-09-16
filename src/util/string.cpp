@@ -24,21 +24,7 @@ string getAVError(int err) {
 // convert to timestamp
 string mkTimeStamp(long int frame, double rate, bool drop) {
   if (((int)rate)==0) {
-    return strFormat("??:??:??.??");
+    return fmt::sprintf("??:??:??.??");
   }
-  return strFormat("%02d:%02d:%02d.%02d",(frame/(int)rate)/3600,((frame/(int)rate)/60)%60,(frame/(int)rate)%60,frame%(int)rate);
-}
-
-string strFormat(const char* format, ...) {
-  va_list va;
-  char str[32768];
-  string ret;
-  va_start(va,format);
-  if (vsnprintf(str,32767,format,va)<0) {
-    va_end(va);
-    return string("");
-  }
-  va_end(va);
-  ret=str;
-  return ret;
+  return fmt::sprintf("%02d:%02d:%02d.%02d",(frame/(int)rate)/3600,((frame/(int)rate)/60)%60,(frame/(int)rate)%60,frame%(int)rate);
 }

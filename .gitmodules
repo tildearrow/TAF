@@ -11,3 +11,6 @@
 [submodule "IconFontCppHeaders"]
 	path = IconFontCppHeaders
 	url = https://github.com/juliettef/IconFontCppHeaders
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/fmtlib/fmt
